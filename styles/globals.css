@@ -4,8 +4,12 @@
 
 /* custom */
 
+html {
+  @apply text-[20px];
+}
+
 body {
-  @apply bg-[url("../public/wallpaper.jpeg")] bg-cover min-h-screen;
+  @apply bg-[url("../public/wallpaper.jpg")] bg-cover min-h-screen;
 }
 
 .flexBetween {
