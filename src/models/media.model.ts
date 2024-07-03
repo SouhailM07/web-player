@@ -3,7 +3,7 @@ import { Schema, model } from "mongoose";
 const mediaSchema = new Schema({
   mediaName: { type: String, required: true },
   mediaSrc: { type: String, required: true },
-  user: { type: Schema.Types.ObjectId, ref: "User", required: true },
+  user: { type: String, required: true },
 });
 
 let Media;

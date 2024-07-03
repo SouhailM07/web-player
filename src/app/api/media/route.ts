@@ -1,26 +1,20 @@
 import { NextRequest } from "next/server";
 import handleResponse from "@/lib/handleResponse";
-import { PrismaClient } from "@prisma/client";
+import connectMongoose from "@/lib/connectDB";
+import Media from "@/models/media.model";
 import queryParam from "@/lib/queryParam";
 
-const prisma = new PrismaClient();
+connectMongoose();
 
 export async function GET(req: NextRequest) {
   try {
     const id = queryParam(req, "id");
-    const userId: any = queryParam(req, "userId");
-
+    const userId = queryParam(req, "userId");
     if (!id) {
-      const medias = await prisma.media.findMany({
-        where: { user: userId },
-      });
+      const medias = await Media.find({ user: userId });
       return handleResponse(medias, 200);
     }
-
-    const oneMedia = await prisma.media.findUnique({
-      where: { id },
-    });
-
+    const oneMedia = await Media.findById(id);
     if (!oneMedia) {
       return handleResponse("media was not found", 404);
     }
@@ -33,23 +27,20 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   try {
     const values = await req.json();
-    const newMedia = await prisma.media.create({
-      data: values,
-    });
+    const newMedia = new Media(values);
+    await newMedia.save();
     return handleResponse("new media was created", 201);
   } catch (error) {
-    return handleResponse(error, 500);
+    handleResponse(error, 500);
   }
 }
 
 export async function PUT(req: NextRequest) {
   try {
-    const id: any = queryParam(req, "id");
+    // const id = req.nextUrl.searchParams.get("id");
+    const id = queryParam(req, "id");
     const values = await req.json();
-    const updateMedia = await prisma.media.update({
-      where: { id },
-      data: values,
-    });
+    const updateMedia = await Media.findByIdAndUpdate(id, values);
     if (!updateMedia) {
       return handleResponse("media was not found", 404);
     }
@@ -61,10 +52,9 @@ export async function PUT(req: NextRequest) {
 
 export async function DELETE(req: NextRequest) {
   try {
-    const id: any = queryParam(req, "id");
-    const deleteMedia = await prisma.media.delete({
-      where: { id },
-    });
+    // const id = req.nextUrl.searchParams.get("id");
+    const id = queryParam(req, "id");
+    const deleteMedia = await Media.findByIdAndDelete(id);
     if (!deleteMedia) {
       return handleResponse("media was not found", 404);
     }
