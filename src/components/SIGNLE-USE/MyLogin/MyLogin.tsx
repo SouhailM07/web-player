@@ -22,7 +22,7 @@ export default function MyLogin() {
   ];
   return (
     <main className="min-h-screen flexCenter flex-col gap-y-[2rem]">
-      <h1 className="text-[2rem] font-bold">Sign In</h1>
+      <h1 className="text-[2rem] font-bold text-white">Sign In</h1>
       <ul
         role="list"
         className="flex-col flex items-center gap-y-[1.5rem] w-full "

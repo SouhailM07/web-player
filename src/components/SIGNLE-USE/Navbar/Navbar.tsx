@@ -11,12 +11,23 @@ import { links_t } from "@/types";
 import { useEffect } from "react";
 import { useAuth, UserButton, useUser } from "@clerk/nextjs";
 import Link from "next/link";
+//
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import MyDialog from "@/components/REUSABLE/MyDialog/MyDialog";
+import UploadPage from "../UploadPage/UploadPage";
 
 export default function Navbar() {
   const { user } = useUser();
   const { isSignedIn, isLoaded } = useAuth();
   let arr: links_t[] = [
-    { icon: faUpload, ariaLabel: "Upload", handler: "" },
     { icon: faCompactDisc, ariaLabel: "Compact Disc", handler: "" },
   ];
   useEffect(() => {
@@ -26,27 +37,18 @@ export default function Navbar() {
     <header className="text-white px-[2rem] py-[1.2rem] bg-black">
       <nav className="flexBetween">
         <h1 className="flexCenter gap-x-[1rem]">Web Player</h1>
-        <ul role="list" className="flex gap-x-[2rem] text-[#41faf4]">
-          {arr.map((e, i) => (
-            <LinksRenderItem key={i} {...e} />
-          ))}
+        <ul
+          role="list"
+          className="flex gap-x-[2rem] text-cyan-300 items-center "
+        >
+          <UploadPage />
+          {/* <LinksRenderItem key={i} {...e} /> */}
           <SignInBtn checker={isSignedIn && isLoaded} />
         </ul>
       </nav>
     </header>
   );
 }
-
-const LinksRenderItem = ({ icon, ariaLabel }: links_t) => (
-  <motion.li whileHover={{ scale: 1.1 }} role="listitem">
-    <FontAwesomeIcon
-      aria-label={ariaLabel}
-      role="button"
-      icon={icon}
-      className="h-[1.5rem] aspect-square"
-    />
-  </motion.li>
-);
 
 const SignInBtn = ({ checker }) => (
   <motion.li whileHover={{ scale: 1.1 }} role="listitem">
@@ -57,7 +59,7 @@ const SignInBtn = ({ checker }) => (
         <FontAwesomeIcon
           aria-label="sign in btn"
           icon={faUserCircle}
-          className="h-[1.5rem] aspect-square"
+          className="h-[1.3rem] aspect-square select-none "
         />
       </Link>
     )}
