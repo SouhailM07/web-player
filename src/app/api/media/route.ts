@@ -7,14 +7,13 @@ const prisma = new PrismaClient();
 
 export async function GET(req: NextRequest) {
   try {
-    const id: any = queryParam(req, "id");
+    const id = queryParam(req, "id");
     const userId: any = queryParam(req, "userId");
 
     if (!id) {
-      // const medias = await prisma.media.findMany({
-      //   where: { user: userId },
-      // });
-      const medias = await prisma.media.findMany();
+      const medias = await prisma.media.findMany({
+        where: { user: userId },
+      });
       return handleResponse(medias, 200);
     }
 
@@ -64,12 +63,12 @@ export async function DELETE(req: NextRequest) {
   try {
     const id: any = queryParam(req, "id");
     const deleteMedia = await prisma.media.delete({
-      where: { id: id },
+      where: { id },
     });
     if (!deleteMedia) {
       return handleResponse("media was not found", 404);
     }
-    return handleResponse("media was deleted", 200);
+    return handleResponse("media was deleted", 204);
   } catch (error) {
     return handleResponse(error, 500);
   }
