@@ -1,14 +1,16 @@
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
 import { getStorage } from "firebase/storage";
+// Import the functions you need from the SDKs you need
 
+// Your web app's Firebase configuration
 const firebaseConfig = {
-  apiKey: process.env.FB_API_KEY,
-  authDomain: process.env.FB_AUTH_DOMAIN,
-  projectId: process.env.FB_PROJECT_ID,
-  storageBucket: process.env.FB_STORAGE_BUCKET,
-  messagingSenderId: process.env.FB_MESSAGING_SENDER_ID,
-  appId: process.env.FB_APP_ID,
+  apiKey: "AIzaSyAO3rZNrasb8dPTBl3BtgV3OOWXWubjMH0",
+  authDomain: "web-player-2020d.firebaseapp.com",
+  projectId: "web-player-2020d",
+  storageBucket: "web-player-2020d.appspot.com",
+  messagingSenderId: "961230523176",
+  appId: "1:961230523176:web:b8ef4ed3a98b6afcbede1d",
 };
 
 // Initialize Firebase

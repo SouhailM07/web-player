@@ -16,7 +16,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { createContext, ReactNode, useRef } from "react";
+import { createContext, ReactNode, useContext, useEffect, useRef } from "react";
 import { DialogClose, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import MyDialog from "@/components/REUSABLE/MyDialog/MyDialog";
 import { faUpload } from "@fortawesome/free-solid-svg-icons";
@@ -25,19 +25,15 @@ import { links_t } from "@/types";
 import loadingStore from "@/zustand/loading.store";
 import { uploadAudio } from "@/lib/fb_hanlders";
 import { APP_API_URL } from "@/lib/APP_API_URL";
-import handleResponse from "@/lib/handleResponse";
 import handleError from "@/lib/handleError";
+import { useUser } from "@clerk/nextjs";
 
 export const UploadContext: any = createContext("");
 
 const formSchema = z.object({
-  audio: z
-    .instanceof(FileList)
-    .refine((files) => files.length === 1, "You must upload exactly one file.")
-    .refine(
-      (files) => files[0]?.type.startsWith("audio/"),
-      "File must be an audio type."
-    ),
+  audio: z.any().refine((file) => file instanceof FileList, {
+    message: "Audio must be a File",
+  }),
 });
 
 export default function UploadPage() {
@@ -46,53 +42,66 @@ export default function UploadPage() {
     defaultValues: {},
   });
 
-  const onSubmit = (values: z.infer<typeof formSchema>) => {
-    console.log(values);
-    const audioFile = values.audio[0];
+  const { editLoading } = loadingStore((state) => state);
+  const { user } = useUser();
+  // ! handlers
+
+  const onSubmit = async (values: z.infer<typeof formSchema>) => {
+    // console.log(values.audio[0]);
+    const { mediaName, downloadURL }: any = await uploadAudio(values.audio[0]);
+    editLoading(true);
+    await axios
+      .post(`${APP_API_URL}/api/media`, {
+        mediaName,
+        mediaSrc: downloadURL,
+        user: user?.id,
+      })
+      .then((res) => console.log(res))
+      .catch(handleError)
+      .finally(() => editLoading(false));
     closeRef?.current.click();
   };
+  useEffect(() => {
+    console.log("check render");
+  }, [user]);
   const closeRef = useRef<any>();
   return (
-    <LOCAL_CONTEXT>
-      <MyDialog
-        trigger={<LinksRenderItem icon={faUpload} ariaLabel="upload" />}
-      >
-        <DialogHeader>
-          <DialogTitle>Upload Audio file</DialogTitle>
-          <Form {...form}>
-            <form
-              onSubmit={form.handleSubmit(onSubmit)}
-              className="space-y-8 flex-col flex"
-            >
-              <FormField
-                control={form.control}
-                name="audio"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-white">Audio</FormLabel>
-                    <FormControl>
-                      <Input
-                        accept="audio/*"
-                        type="file"
-                        onChange={(e) => field.onChange(e.target.files)}
-                      />
-                    </FormControl>
-                    <FormDescription>
-                      Please upload an audio file.
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <Button type="submit" className="self-end">
-                Submit
-              </Button>
-              <DialogClose ref={closeRef} className="absolute z-[-1]" />
-            </form>
-          </Form>
-        </DialogHeader>
-      </MyDialog>
-    </LOCAL_CONTEXT>
+    <MyDialog trigger={<LinksRenderItem icon={faUpload} ariaLabel="upload" />}>
+      <DialogHeader>
+        <DialogTitle>Upload Audio file</DialogTitle>
+        <Form {...form}>
+          <form
+            onSubmit={form.handleSubmit(onSubmit)}
+            className="space-y-8 flex-col flex"
+          >
+            <FormField
+              control={form.control}
+              name="audio"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-white">Audio</FormLabel>
+                  <FormControl>
+                    <Input
+                      accept="audio/*"
+                      type="file"
+                      onChange={(e) => field.onChange(e.target.files)}
+                    />
+                  </FormControl>
+                  <FormDescription>
+                    Please upload an audio file.
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <Button type="submit" className="self-end">
+              Submit
+            </Button>
+            <DialogClose ref={closeRef} className="absolute z-[-1]" />
+          </form>
+        </Form>
+      </DialogHeader>
+    </MyDialog>
   );
 }
 const LinksRenderItem = ({ icon, ariaLabel }: links_t) => (
@@ -107,28 +116,8 @@ const LinksRenderItem = ({ icon, ariaLabel }: links_t) => (
 
 const LOCAL_CONTEXT = ({ children }: { children: ReactNode }) => {
   const { editLoading } = loadingStore((state) => state);
+  const { user } = useUser();
   // ! handlers
-  const handleUpload = async (values) => {
-    try {
-      editLoading(true);
-      const { mediaName, downloadURL }: any = await uploadAudio(
-        values.audio[0]
-      );
-      const res = await axios.post(`${APP_API_URL}/api/media`, {
-        mediaName,
-        mediaSrc: downloadURL,
-        user: "",
-      });
-      console.log(res);
-    } catch (error) {
-      handleError(error);
-    } finally {
-      editLoading(false);
-    }
-  };
-  return (
-    <UploadContext.Provider value={{ handleUpload }}>
-      {children}
-    </UploadContext.Provider>
-  );
+
+  return <UploadContext.Provider>{children}</UploadContext.Provider>;
 };
