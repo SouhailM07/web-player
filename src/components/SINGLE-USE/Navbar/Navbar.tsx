@@ -1,11 +1,7 @@
 "use client";
 import "./navbar.css";
 import { motion } from "framer-motion";
-import {
-  faCompactDisc,
-  faUpload,
-  faUserCircle,
-} from "@fortawesome/free-solid-svg-icons";
+import { faCompactDisc, faUserCircle } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { links_t } from "@/types";
 import { useEffect } from "react";

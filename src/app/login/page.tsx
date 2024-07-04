@@ -1,4 +1,4 @@
-import MyLogin from "@/components/SIGNLE-USE/MyLogin/MyLogin";
+import MyLogin from "@/components/SINGLE-USE/MyLogin/MyLogin";
 
 export default function LoginRoute() {
   return <MyLogin />;

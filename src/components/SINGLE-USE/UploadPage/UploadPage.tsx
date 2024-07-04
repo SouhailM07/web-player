@@ -27,6 +27,9 @@ import { uploadAudio } from "@/lib/fb_hanlders";
 import { APP_API_URL } from "@/lib/APP_API_URL";
 import handleError from "@/lib/handleError";
 import { useUser } from "@clerk/nextjs";
+import selectedAudioStore from "@/zustand/selectedAudio.store";
+import audioFilesStore from "@/zustand/audioFiles.store";
+import { useToast } from "@/components/ui/use-toast";
 
 export const UploadContext: any = createContext("");
 
@@ -44,22 +47,58 @@ export default function UploadPage() {
 
   const { editLoading } = loadingStore((state) => state);
   const { user } = useUser();
+  const { selectedAudio, editSelectedAudio } = selectedAudioStore(
+    (state) => state
+  );
+  const { audioFiles, editAudioFiles } = audioFilesStore((state) => state);
   // ! handlers
-
+  const getAudios = async () => {
+    try {
+      const res = await axios.get(
+        `${APP_API_URL}/api/media?userId=${user?.id}`
+      );
+      editAudioFiles(res.data);
+    } catch (error) {
+      handleError(error);
+    }
+  };
+  const { toast } = useToast();
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     // console.log(values.audio[0]);
-    const { mediaName, downloadURL }: any = await uploadAudio(values.audio[0]);
-    editLoading(true);
-    await axios
-      .post(`${APP_API_URL}/api/media`, {
-        mediaName,
-        mediaSrc: downloadURL,
-        user: user?.id,
-      })
-      .then((res) => console.log(res))
-      .catch(handleError)
-      .finally(() => editLoading(false));
-    closeRef?.current.click();
+    let doesAudioExist = audioFiles.filter((e) => {
+      const thisAudioIndex = values.audio[0].name.lastIndexOf(".");
+      const thisAudio = values.audio[0].name.slice(0, thisAudioIndex);
+      const anAudio = e.mediaName.slice(6, e.mediaName.lastIndexOf("."));
+      return thisAudio == anAudio;
+    });
+    if (doesAudioExist.length > 0) {
+      toast({
+        variant: "destructive",
+        description: "The audio is already exist",
+      });
+    } else {
+      const { mediaName, downloadURL }: any = await uploadAudio(
+        values.audio[0]
+      );
+      editLoading(true);
+      await axios
+        .post(`${APP_API_URL}/api/media`, {
+          mediaName,
+          mediaSrc: downloadURL,
+          user: user?.id,
+        })
+        .then((res) => {
+          getAudios();
+        })
+        .catch(handleError)
+        .finally(() => {
+          toast({ description: "The audio has been uploaded successfully" });
+          // ! must reset the value properly
+          editLoading(false);
+        });
+      closeRef?.current.click();
+    }
+    form.reset();
   };
   useEffect(() => {
     console.log("check render");
