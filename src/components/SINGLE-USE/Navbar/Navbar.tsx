@@ -8,16 +8,6 @@ import { useEffect } from "react";
 import { useAuth, UserButton, useUser } from "@clerk/nextjs";
 import Link from "next/link";
 //
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import MyDialog from "@/components/REUSABLE/MyDialog/MyDialog";
 import UploadPage from "../UploadPage/UploadPage";
 
 export default function Navbar() {
