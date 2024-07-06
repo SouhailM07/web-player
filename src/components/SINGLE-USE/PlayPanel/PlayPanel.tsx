@@ -57,6 +57,7 @@ export default function PlayPanel() {
       }
     };
   }, [selectedAudio]);
+
   return (
     <section className="grid grid-cols-[1fr_3fr_1fr] fixed text-white  bottom-0 w-full  py-[0.5rem] px-[2rem] bg-black">
       <SoundControl audioInstance={audioInstance} />
@@ -86,6 +87,7 @@ const Controls = ({ audioInstance }) => {
   };
   const handleRepeat = () => {
     console.log(repeatPlay);
+    editRandomPlay(false);
     repeatPlay < 2 ? editRepeatPlay(repeatPlay + 1) : editRepeatPlay(0);
   };
   const handleForward = () => {
@@ -115,6 +117,7 @@ const Controls = ({ audioInstance }) => {
       icon: faShuffle,
       ariaLabel: "play random",
       handler: () => {
+        editRepeatPlay(0);
         editRandomPlay(!randomPlay);
       },
       customStyle: `${randomPlay && "text-cyan-300"}`,
@@ -187,14 +190,31 @@ const TrackLine = ({ audioInstance }) => {
     console.log("check render from interval");
     const intervalId = setInterval(async () => {
       if (audioInstance && play) {
-        if (
-          audioInstance.currentTime === audioInstance.duration &&
-          selectedAudio.index !== audioFiles.length - 1
-        ) {
-          await editSelectedAudio({
-            src: audioFiles[selectedAudio.index + 1].mediaSrc,
-            index: selectedAudio.index + 1,
-          });
+        if (audioInstance.currentTime === audioInstance.duration) {
+          if (repeatPlay == 2) {
+            console.log(repeatPlay);
+            audioInstance.play();
+          } else if (
+            selectedAudio.index == audioFiles.length - 1 &&
+            repeatPlay == 1
+          ) {
+            await editSelectedAudio({
+              src: audioFiles[0].mediaSrc,
+              index: 0,
+            });
+          } else if (
+            (selectedAudio.index !== audioFiles.length - 1 &&
+              repeatPlay == 0) ||
+            randomPlay
+          ) {
+            let randomNumber = Math.floor(Math.random() * audioFiles.length);
+            await editSelectedAudio({
+              src: audioFiles[
+                randomPlay ? randomNumber : selectedAudio.index + 1
+              ].mediaSrc,
+              index: randomPlay ? randomNumber : selectedAudio.index + 1,
+            });
+          }
         }
         setSliderValue(
           (audioInstance.currentTime * 100) / audioInstance.duration
@@ -204,7 +224,7 @@ const TrackLine = ({ audioInstance }) => {
 
     // Cleanup function to clear the interval when component unmounts or play state changes
     return () => clearInterval(intervalId);
-  }, [audioInstance, play, randomPlay]);
+  }, [audioInstance, play, randomPlay, repeatPlay]);
 
   const handleSliderChange = (value) => {
     setSliderValue(value[0]);
