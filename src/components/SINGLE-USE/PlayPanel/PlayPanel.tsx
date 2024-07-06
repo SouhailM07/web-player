@@ -19,6 +19,7 @@ import selectedAudioStore from "@/zustand/selectedAudio.store";
 import playStore from "@/zustand/play.store";
 import audioFilesStore from "@/zustand/audioFiles.store";
 import randomPlayStore from "@/zustand/randomPlay.store";
+import repeatPlayStore from "@/zustand/repeatPlay.store";
 
 /*==============================================================================================*/
 // main component section
@@ -73,13 +74,19 @@ const Controls = ({ audioInstance }) => {
   const { selectedAudio, editSelectedAudio } = selectedAudioStore(
     (state) => state
   );
+  const { repeatPlay, editRepeatPlay } = repeatPlayStore((state) => state);
   const { randomPlay, editRandomPlay } = randomPlayStore((state) => state);
   const { audioFiles } = audioFilesStore((state) => state);
+
   const handlePlay = () => {
     if (selectedAudio.src) {
       play ? audioInstance.pause() : audioInstance.play();
       editPlay(!play);
     }
+  };
+  const handleRepeat = () => {
+    console.log(repeatPlay);
+    repeatPlay < 2 ? editRepeatPlay(repeatPlay + 1) : editRepeatPlay(0);
   };
   const handleForward = () => {
     if (selectedAudio.src) {
@@ -128,7 +135,14 @@ const Controls = ({ audioInstance }) => {
       ariaLabel: "forward",
       handler: () => setTimeout(handleForward, 100),
     },
-    { icon: faRepeat, ariaLabel: "repeat btn", handler: "" },
+    {
+      icon: faRepeat,
+      ariaLabel: "repeat btn",
+      handler: handleRepeat,
+      customStyle: `${
+        repeatPlay == 1 ? "text-cyan-300" : repeatPlay == 2 && "text-red-500"
+      }`,
+    },
   ];
 
   useEffect(() => {
@@ -167,21 +181,19 @@ const TrackLine = ({ audioInstance }) => {
   const { randomPlay, editRandomPlay } = randomPlayStore((state) => state);
   const { audioFiles } = audioFilesStore((state) => state);
   // Update sliderValue when audioInstance or play state changes
+  const { repeatPlay, editRepeatPlay } = repeatPlayStore((state) => state);
   useEffect(() => {
     if (!audioInstance) return;
     console.log("check render from interval");
     const intervalId = setInterval(async () => {
       if (audioInstance && play) {
-        // ! if repeat reset to 0 , else check if this is the last and stop it
         if (
           audioInstance.currentTime === audioInstance.duration &&
           selectedAudio.index !== audioFiles.length - 1
         ) {
-          let randomNumber = Math.floor(Math.random() * audioFiles.length);
           await editSelectedAudio({
-            src: audioFiles[randomPlay ? randomNumber : selectedAudio.index + 1]
-              .mediaSrc,
-            index: randomPlay ? randomNumber : selectedAudio.index + 1,
+            src: audioFiles[selectedAudio.index + 1].mediaSrc,
+            index: selectedAudio.index + 1,
           });
         }
         setSliderValue(
