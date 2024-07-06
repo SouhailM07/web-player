@@ -29,3 +29,10 @@ const [sliderValue, setSliderValue] = useState(0);
 ```
 
 ## Handlers
+
+| Technology   | Purpose                    |
+| ------------ | -------------------------- |
+| React        | Frontend Framework         |
+| Zustand      | State Management           |
+| Tailwind CSS | Styling                    |
+| Firebase     | Backend and Authentication |
