@@ -11,53 +11,54 @@ import {
   faVolumeLow,
 } from "@fortawesome/free-solid-svg-icons";
 import { links_t } from "@/types";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { Slider } from "@/components/ui/slider";
 import selectedAudioStore from "@/zustand/selectedAudio.store";
 import playStore from "@/zustand/play.store";
+import formatTime from "@/lib/formatTime";
+import audioFilesStore from "@/zustand/audioFiles.store";
 
 /*==============================================================================================*/
 // main component section
 /*==============================================================================================*/
 
 export default function PlayPanel() {
-  const audioRef = useRef<HTMLAudioElement | null>(null);
   const { selectedAudio, editSelectedAudio } = selectedAudioStore(
     (state) => state
   );
-  const [duration, setDuration] = useState(0);
-  const [currentTime, setCurrentTime] = useState(0);
-
+  // const [duration, setDuration] = useState(0);
+  // const [currentTime, setCurrentTime] = useState(0);
+  const [audioInstance, setAudioInstance] = useState<HTMLAudioElement | null>(
+    null
+  );
+  // const [isPlaying, setIsPlaying] = useState<boolean>(false);
+  const { play, editPlay } = playStore((state) => state);
   useEffect(() => {
-    const audioElement = audioRef.current;
-
-    const handleLoadedMetadata = () => {
-      setDuration(audioElement?.duration || 0);
-    };
-
-    const handleTimeUpdate = () => {
-      setCurrentTime(audioElement?.currentTime || 0);
-    };
-
-    audioElement?.addEventListener("loadedmetadata", handleLoadedMetadata);
-    audioElement?.addEventListener("timeupdate", handleTimeUpdate);
-
+    if (audioInstance) {
+      audioInstance.pause();
+      audioInstance.currentTime = 0;
+      editPlay(false);
+    }
+    const newAudio = new Audio();
+    if (selectedAudio.src) {
+      newAudio.src = selectedAudio.src;
+      newAudio.play();
+      editPlay(true);
+    }
+    setAudioInstance(newAudio);
     return () => {
-      audioElement?.removeEventListener("loadedmetadata", handleLoadedMetadata);
-      audioElement?.removeEventListener("timeupdate", handleTimeUpdate);
+      if (newAudio) {
+        newAudio.pause();
+        newAudio.currentTime = 0;
+        editPlay(false);
+      }
     };
   }, [selectedAudio]);
-
   return (
     <section className="grid grid-cols-[1fr_3fr_1fr] fixed text-white  bottom-0 w-full  py-[0.5rem] px-[2rem] bg-black">
-      <audio ref={audioRef} src={selectedAudio.src}></audio>
-      <SoundControl audioRef={audioRef} />
-      <Controls audioRef={audioRef} duration={duration} />
-      <TrackLine
-        audioRef={audioRef}
-        duration={duration}
-        currentTime={currentTime}
-      />
+      <SoundControl audioInstance={audioInstance} />
+      <Controls audioInstance={audioInstance} />
+      <TrackLine audioInstance={audioInstance} />
     </section>
   );
 }
@@ -66,30 +67,33 @@ export default function PlayPanel() {
 // small components
 /*==============================================================================================*/
 
-const Controls = ({ audioRef, duration }) => {
+const Controls = ({ audioInstance }) => {
   const { selectedAudio, editSelectedAudio } = selectedAudioStore(
     (state) => state
   );
-  let controls: links_t[] = [
-    { icon: faShuffle, ariaLabel: "play random", handler: "" },
-    { icon: faBackwardStep, ariaLabel: "backward btn", handler: "" },
-  ];
-  let controls_2: links_t[] = [
-    { icon: faForwardStep, ariaLabel: "forward", handler: "" },
-    { icon: faRepeat, ariaLabel: "repeat btn", handler: "" },
-  ];
-  const { play, editPlay } = playStore((state) => state);
-
-  useEffect(() => {
-    console.log("check render from controls");
-    play ? audioRef.current?.play() : audioRef.current?.pause();
-  }, [selectedAudio, play]);
-
   const handlePlay = () => {
     if (selectedAudio.src) {
+      play ? audioInstance.pause() : audioInstance.play();
       editPlay(!play);
     }
   };
+  const { play, editPlay } = playStore((state) => state);
+  let controls: links_t[] = [
+    { icon: faShuffle, ariaLabel: "play random", handler: "" },
+    { icon: faBackwardStep, ariaLabel: "backward btn", handler: "" },
+    {
+      icon: play ? faPause : faPlay,
+      ariaLabel: "play btn",
+      handler: handlePlay,
+      customStyle: ` bg-white text-black p-2 grid place-items-center aspect-square rounded-full`,
+    },
+    { icon: faForwardStep, ariaLabel: "forward", handler: "" },
+    { icon: faRepeat, ariaLabel: "repeat btn", handler: "" },
+  ];
+
+  useEffect(() => {
+    console.log("check render from controls");
+  }, [selectedAudio, play]);
 
   return (
     <article className="w-[20rem] space-y-2 place-self-center">
@@ -99,33 +103,8 @@ const Controls = ({ audioRef, duration }) => {
             <FontAwesomeIcon
               role="button"
               icon={e.icon}
-              className="h-[1rem] aspect-square "
-            />
-          </li>
-        ))}
-        <li
-          role="button"
-          onClick={handlePlay}
-          className="bg-white text-black h-[1.8rem] aspect-square rounded-full grid place-items-center select-none"
-        >
-          {play ? (
-            <FontAwesomeIcon
-              icon={faPause}
-              className="h-[1rem] aspect-square"
-            />
-          ) : (
-            <FontAwesomeIcon
-              icon={faPlay}
-              className="h-[1rem] aspect-square translate-x-[2px]"
-            />
-          )}
-        </li>
-        {controls_2.map((e, i) => (
-          <li role="listitem" key={i}>
-            <FontAwesomeIcon
-              role="button"
-              icon={e.icon}
-              className="h-[1rem] aspect-square"
+              onClick={e?.handler}
+              className={`${e.customStyle} h-[1rem] aspect-square `}
             />
           </li>
         ))}
@@ -134,42 +113,68 @@ const Controls = ({ audioRef, duration }) => {
   );
 };
 
-const TrackLine = ({ audioRef, duration, currentTime }) => {
+const TrackLine = ({ audioInstance }) => {
   const [sliderValue, setSliderValue] = useState(0);
-
+  const { play, editPlay } = playStore((state) => state);
+  const { selectedAudio, editSelectedAudio } = selectedAudioStore(
+    (state) => state
+  );
+  const { audioFiles } = audioFilesStore((state) => state);
+  // Update sliderValue when audioInstance or play state changes
   useEffect(() => {
-    setSliderValue((currentTime / duration) * 100 || 0);
-  }, [currentTime, duration]);
+    if (!audioInstance) return;
+    console.log("check render from interval");
+    const intervalId = setInterval(async () => {
+      if (audioInstance && play) {
+        // ! if repeat reset to 0 , else check if this is the last and stop it
+        if (
+          audioInstance.currentTime === audioInstance.duration &&
+          selectedAudio.index !== audioFiles.length - 1
+        ) {
+          await editSelectedAudio({
+            src: audioFiles[selectedAudio.index + 1].mediaSrc,
+            index: selectedAudio.index + 1,
+          });
+        }
+        setSliderValue(
+          (audioInstance.currentTime * 100) / audioInstance.duration
+        );
+      }
+    }, 1000);
+
+    // Cleanup function to clear the interval when component unmounts or play state changes
+    return () => clearInterval(intervalId);
+  }, [audioInstance, play]);
 
   const handleSliderChange = (value) => {
-    if (audioRef.current) {
-      audioRef.current.currentTime = (value[0] / 100) * duration;
+    setSliderValue(value[0]);
+    if (audioInstance) {
+      // Adjust currentTime of audioInstance based on slider value
+      audioInstance.currentTime = (value[0] / 100) * audioInstance.duration;
     }
-  };
-
-  const formatTime = (seconds) => {
-    const minutes = Math.floor(seconds / 60);
-    const remainderSeconds = Math.floor(seconds % 60);
-    return `${minutes}:${remainderSeconds < 10 ? "0" : ""}${remainderSeconds}`;
   };
 
   return (
     <div className="w-full flexBetween gap-x-2 select-none">
-      <span className="text-[0.6rem] ">{formatTime(currentTime)}</span>
+      <span className="text-[0.6rem]">
+        {formatTime(audioInstance?.currentTime || 0)}
+      </span>
       <Slider
         onValueChange={handleSliderChange}
         value={[sliderValue]}
         max={100}
         step={0.1}
       />
-      <span className="text-[0.6rem] ">{formatTime(duration)}</span>
+      <span className="text-[0.6rem]">
+        {formatTime(audioInstance?.duration || 0)}
+      </span>
     </div>
   );
 };
 
-const SoundControl = ({ audioRef }) => {
+const SoundControl = ({ audioInstance }) => {
   let handleVolume = (e) => {
-    audioRef.current.volume = e[0] / 100;
+    audioInstance.volume = e[0] / 100;
   };
 
   return (
@@ -177,7 +182,7 @@ const SoundControl = ({ audioRef }) => {
       <FontAwesomeIcon icon={faVolumeLow} className="h-[1rem] aspect-square" />
       <Slider
         onValueChange={handleVolume}
-        defaultValue={[audioRef.current?.volume || 1 * 100]}
+        defaultValue={[audioInstance?.volume || 1 * 100]}
         max={100}
         step={1}
       />

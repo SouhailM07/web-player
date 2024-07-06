@@ -77,10 +77,10 @@ export default function UploadPage() {
         description: "The audio is already exist",
       });
     } else {
+      editLoading(true);
       const { mediaName, downloadURL }: any = await uploadAudio(
         values.audio[0]
       );
-      editLoading(true);
       await axios
         .post(`${APP_API_URL}/api/media`, {
           mediaName,

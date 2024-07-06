@@ -36,7 +36,7 @@ export default function HomePage() {
 
   return (
     <main className="flexCenter text-white px-[2rem]">
-      <ul className="text-black text-[0.7rem]  w-full flex flex-col gap-y-[1rem]">
+      <ul className="bg-neutral-800 pt-[1rem] rounded-lg text-[0.7rem]  w-full flex flex-col gap-y-[1rem]">
         {audioFiles.map((e, i) => (
           <HomePageRenderItem {...e} key={i} i={i} />
         ))}
@@ -47,12 +47,16 @@ export default function HomePage() {
 
 const HomePageRenderItem = ({ i, mediaSrc, mediaName }) => {
   const { play, editPlay } = playStore((state) => state);
+  const { audioFiles } = audioFilesStore((state) => state);
+
   const { selectedAudio, editSelectedAudio } = selectedAudioStore(
     (state) => state
   );
   return (
     <li
-      className="bg-white rounded-full h-[3rem] px-[1rem] flexBetween cursor-pointer"
+      className={`${selectedAudio.index === i && "text-cyan-300"} ${
+        i != audioFiles.length - 1 && "border-b"
+      } h-[3rem]  border-white px-[2rem] flexBetween cursor-pointer`}
       onClick={() => {
         editSelectedAudio({ src: mediaSrc, index: i });
         editPlay(true);

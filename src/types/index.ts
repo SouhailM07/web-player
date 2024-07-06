@@ -4,4 +4,5 @@ export interface links_t {
   icon: IconDefinition;
   ariaLabel: string;
   handler?: any;
+  customStyle?: string;
 }
