@@ -13,11 +13,12 @@ import {
 import { links_t } from "@/types";
 import { useEffect, useState } from "react";
 import { Slider } from "@/components/ui/slider";
+import { motion } from "framer-motion";
+import formatTime from "@/lib/formatTime";
 import selectedAudioStore from "@/zustand/selectedAudio.store";
 import playStore from "@/zustand/play.store";
-import formatTime from "@/lib/formatTime";
 import audioFilesStore from "@/zustand/audioFiles.store";
-import { toast, useToast } from "@/components/ui/use-toast";
+import randomPlayStore from "@/zustand/randomPlay.store";
 
 /*==============================================================================================*/
 // main component section
@@ -72,23 +73,61 @@ const Controls = ({ audioInstance }) => {
   const { selectedAudio, editSelectedAudio } = selectedAudioStore(
     (state) => state
   );
+  const { randomPlay, editRandomPlay } = randomPlayStore((state) => state);
+  const { audioFiles } = audioFilesStore((state) => state);
   const handlePlay = () => {
     if (selectedAudio.src) {
       play ? audioInstance.pause() : audioInstance.play();
       editPlay(!play);
     }
   };
+  const handleForward = () => {
+    if (selectedAudio.src) {
+      if (selectedAudio.index !== audioFiles.length - 1) {
+        let randomNumber = Math.floor(Math.random() * audioFiles.length);
+        editSelectedAudio({
+          src: audioFiles[randomPlay ? randomNumber : selectedAudio.index + 1]
+            .mediaSrc,
+          index: randomPlay ? randomNumber : selectedAudio.index + 1,
+        });
+      }
+    }
+  };
+  const handleBackward = () => {
+    if (selectedAudio.src) {
+      if (selectedAudio.index !== 0)
+        editSelectedAudio({
+          src: audioFiles[selectedAudio.index - 1].mediaSrc,
+          index: selectedAudio.index - 1,
+        });
+    }
+  };
   const { play, editPlay } = playStore((state) => state);
   let controls: links_t[] = [
-    { icon: faShuffle, ariaLabel: "play random", handler: "" },
-    { icon: faBackwardStep, ariaLabel: "backward btn", handler: "" },
+    {
+      icon: faShuffle,
+      ariaLabel: "play random",
+      handler: () => {
+        editRandomPlay(!randomPlay);
+      },
+      customStyle: `${randomPlay && "text-cyan-300"}`,
+    },
+    {
+      icon: faBackwardStep,
+      ariaLabel: "backward btn",
+      handler: () => setTimeout(handleBackward, 100),
+    },
     {
       icon: play ? faPause : faPlay,
       ariaLabel: "play btn",
       handler: handlePlay,
-      customStyle: ` bg-white text-black p-2 grid place-items-center aspect-square rounded-full`,
+      customStyle: ` bg-white text-black h-[1.2rem] p-2 grid place-items-center aspect-square rounded-full`,
     },
-    { icon: faForwardStep, ariaLabel: "forward", handler: "" },
+    {
+      icon: faForwardStep,
+      ariaLabel: "forward",
+      handler: () => setTimeout(handleForward, 100),
+    },
     { icon: faRepeat, ariaLabel: "repeat btn", handler: "" },
   ];
 
@@ -100,14 +139,19 @@ const Controls = ({ audioInstance }) => {
     <article className="w-[20rem] space-y-2 place-self-center">
       <ul role="list" className="flexBetween w-[10rem]  mx-auto">
         {controls.map((e, i) => (
-          <li key={i} role="listitem" className="select-none">
+          <motion.li
+            whileHover={{ scale: 1.2 }}
+            key={i}
+            role="listitem"
+            className="select-none"
+          >
             <FontAwesomeIcon
               role="button"
               icon={e.icon}
               onClick={e?.handler}
               className={`${e.customStyle} h-[1rem] aspect-square `}
             />
-          </li>
+          </motion.li>
         ))}
       </ul>
     </article>
@@ -120,6 +164,7 @@ const TrackLine = ({ audioInstance }) => {
   const { selectedAudio, editSelectedAudio } = selectedAudioStore(
     (state) => state
   );
+  const { randomPlay, editRandomPlay } = randomPlayStore((state) => state);
   const { audioFiles } = audioFilesStore((state) => state);
   // Update sliderValue when audioInstance or play state changes
   useEffect(() => {
@@ -132,9 +177,11 @@ const TrackLine = ({ audioInstance }) => {
           audioInstance.currentTime === audioInstance.duration &&
           selectedAudio.index !== audioFiles.length - 1
         ) {
+          let randomNumber = Math.floor(Math.random() * audioFiles.length);
           await editSelectedAudio({
-            src: audioFiles[selectedAudio.index + 1].mediaSrc,
-            index: selectedAudio.index + 1,
+            src: audioFiles[randomPlay ? randomNumber : selectedAudio.index + 1]
+              .mediaSrc,
+            index: randomPlay ? randomNumber : selectedAudio.index + 1,
           });
         }
         setSliderValue(
@@ -145,7 +192,7 @@ const TrackLine = ({ audioInstance }) => {
 
     // Cleanup function to clear the interval when component unmounts or play state changes
     return () => clearInterval(intervalId);
-  }, [audioInstance, play]);
+  }, [audioInstance, play, randomPlay]);
 
   const handleSliderChange = (value) => {
     setSliderValue(value[0]);
