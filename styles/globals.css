@@ -24,6 +24,44 @@ body {
   @apply border-2 border-green-500;
 }
 
+::-webkit-scrollbar {
+  @apply w-[9px] h-[10px];
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1; /* color of the track (scrollbar background) */
+}
+
+::-webkit-scrollbar-thumb {
+  @apply rounded-full;
+  @apply bg-cyan-300;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #555; /* color of the scrollbar handle on hover */
+}
+
+/* Remove scrollbar arrows */
+::-webkit-scrollbar-button {
+  display: none; /* hides the scrollbar arrows */
+}
+
+/* Firefox */
+.scrollable-component {
+  scrollbar-width: thin; /* width of the scrollbar */
+  scrollbar-color: #888 #f1f1f1; /* color of the scrollbar handle and track */
+}
+
+/* Internet Explorer/Edge (Old Versions) */
+.scrollable-component {
+  -ms-overflow-style: none; /* disables the default scrollbar style */
+}
+
+/* For completeness, hiding scrollbar arrows in IE/Edge (Old Versions) */
+.scrollable-component::-ms-scrollbar-button {
+  display: none; /* hides the scrollbar arrows */
+}
+
 /* rest */
 .loader-background {
   height: 100%;

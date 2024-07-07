@@ -58,7 +58,7 @@ export async function DELETE(req: NextRequest) {
     if (!deleteMedia) {
       return handleResponse("media was not found", 404);
     }
-    return handleResponse("media was deleted", 204);
+    return handleResponse("media was deleted", 200);
   } catch (error) {
     return handleResponse(error, 500);
   }

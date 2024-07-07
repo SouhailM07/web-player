@@ -25,7 +25,8 @@ export const uploadAudio = async (media) => {
 };
 
 export const deleteAudio = async (deleteRef) => {
-  await deleteObject(deleteRef)
+  const mediaRef = ref(storage, deleteRef);
+  await deleteObject(mediaRef)
     .then(() => console.log("audio was deleted"))
     .catch((err) => handleError(err));
 };
