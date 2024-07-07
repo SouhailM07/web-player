@@ -20,7 +20,7 @@ import playStore from "@/zustand/play.store";
 import audioFilesStore from "@/zustand/audioFiles.store";
 import randomPlayStore from "@/zustand/randomPlay.store";
 import repeatPlayStore from "@/zustand/repeatPlay.store";
-
+import audioInstanceStore from "@/zustand/audioInstance.store";
 /*==============================================================================================*/
 // main component section
 /*==============================================================================================*/
@@ -31,9 +31,10 @@ export default function PlayPanel() {
   );
   // const [duration, setDuration] = useState(0);
   // const [currentTime, setCurrentTime] = useState(0);
-  const [audioInstance, setAudioInstance] = useState<HTMLAudioElement | null>(
-    null
+  const { audioInstance, editAudioInstance } = audioInstanceStore(
+    (state) => state
   );
+
   // const [isPlaying, setIsPlaying] = useState<boolean>(false);
   const { play, editPlay } = playStore((state) => state);
   useEffect(() => {
@@ -48,7 +49,7 @@ export default function PlayPanel() {
       newAudio.play();
       editPlay(true);
     }
-    setAudioInstance(newAudio);
+    editAudioInstance(newAudio);
     return () => {
       if (newAudio) {
         newAudio.pause();
@@ -60,9 +61,9 @@ export default function PlayPanel() {
 
   return (
     <section className="grid grid-cols-[1fr_3fr_1fr] fixed text-white  bottom-0 w-full  py-[0.5rem] px-[2rem] bg-black">
-      <SoundControl audioInstance={audioInstance} />
-      <Controls audioInstance={audioInstance} />
-      <TrackLine audioInstance={audioInstance} />
+      <SoundControl />
+      <Controls />
+      <TrackLine />
     </section>
   );
 }
@@ -71,8 +72,11 @@ export default function PlayPanel() {
 // small components
 /*==============================================================================================*/
 
-const Controls = ({ audioInstance }) => {
+const Controls = () => {
   const { selectedAudio, editSelectedAudio } = selectedAudioStore(
+    (state) => state
+  );
+  const { audioInstance, editAudioInstance } = audioInstanceStore(
     (state) => state
   );
   const { repeatPlay, editRepeatPlay } = repeatPlayStore((state) => state);
@@ -81,7 +85,7 @@ const Controls = ({ audioInstance }) => {
 
   const handlePlay = () => {
     if (selectedAudio.src) {
-      play ? audioInstance.pause() : audioInstance.play();
+      play ? audioInstance?.pause() : audioInstance?.play();
       editPlay(!play);
     }
   };
@@ -175,7 +179,10 @@ const Controls = ({ audioInstance }) => {
   );
 };
 
-const TrackLine = ({ audioInstance }) => {
+const TrackLine = () => {
+  const { audioInstance, editAudioInstance } = audioInstanceStore(
+    (state) => state
+  );
   const [sliderValue, setSliderValue] = useState(0);
   const { play, editPlay } = playStore((state) => state);
   const { selectedAudio, editSelectedAudio } = selectedAudioStore(
@@ -186,7 +193,10 @@ const TrackLine = ({ audioInstance }) => {
   // Update sliderValue when audioInstance or play state changes
   const { repeatPlay, editRepeatPlay } = repeatPlayStore((state) => state);
   useEffect(() => {
-    if (!audioInstance) return;
+    if (!audioInstance) {
+      setSliderValue(0);
+      return;
+    }
     console.log("check render from interval");
     const intervalId = setInterval(async () => {
       if (audioInstance && play) {
@@ -252,8 +262,12 @@ const TrackLine = ({ audioInstance }) => {
   );
 };
 
-const SoundControl = ({ audioInstance }) => {
+const SoundControl = () => {
+  const { audioInstance, editAudioInstance } = audioInstanceStore(
+    (state) => state
+  );
   let handleVolume = (e) => {
+    // @ts-ignore
     audioInstance.volume = e[0] / 100;
   };
 

@@ -24,6 +24,14 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { APP_API_URL } from "@/lib/APP_API_URL";
+import axios from "axios";
+import { useToast } from "@/components/ui/use-toast";
+import handleError from "@/lib/handleError";
+import loadingStore from "@/zustand/loading.store";
+import { Button } from "@/components/ui/button";
+import audioFilesStore from "@/zustand/audioFiles.store";
+import { useUser } from "@clerk/nextjs";
 
 const formSchema = z.object({
   audioName: z.string().min(3, {
@@ -31,20 +39,53 @@ const formSchema = z.object({
   }),
 });
 
-export default function RenameAudio({}: {}) {
+export default function RenameAudio({
+  _id,
+  name,
+}: {
+  _id: string;
+  name: string;
+}) {
   // 1. Define your form.
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      audioName: "",
+      audioName: name,
     },
   });
-  const onSubmit = (values: z.infer<typeof formSchema>) => {
-    // Do something with the form values.
-    // ✅ This will be type-safe and validated.
-    console.log(values);
+  const { toast } = useToast();
+  const { editLoading } = loadingStore((state) => state);
+  const { user } = useUser();
+  const { editAudioFiles } = audioFilesStore((state) => state);
+  const getAudios = async () => {
+    try {
+      editLoading(true);
+      const res = await axios.get(
+        `${APP_API_URL}/api/media?userId=${user?.id}`
+      );
+      editAudioFiles(res.data);
+    } catch (error) {
+      handleError(error);
+    } finally {
+      editLoading(false);
+    }
   };
-
+  const onSubmit = async (values: z.infer<typeof formSchema>) => {
+    // console.log(values);
+    try {
+      editLoading(true);
+      await axios.put(`${APP_API_URL}/api/media?id=${_id}`, {
+        customName: values.audioName,
+      });
+      toast({ description: "audio name was updated" });
+      await getAudios();
+    } catch (error) {
+      handleError(error);
+      toast({ variant: "destructive", description: "something went wrong" });
+    } finally {
+      editLoading(false);
+    }
+  };
   return (
     <MyDialog
       trigger={
@@ -56,6 +97,7 @@ export default function RenameAudio({}: {}) {
       }
     >
       <DialogHeader>
+        <DialogTitle>Audio Name</DialogTitle>
         <DialogContent>
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
@@ -73,13 +115,8 @@ export default function RenameAudio({}: {}) {
                 )}
               />
               <DialogFooter>
-                <DialogClose>
-                  <MyButton
-                    label="Save"
-                    icon={faSave}
-                    color="bg-cyan-500 text-white"
-                  />
-                </DialogClose>
+                <Button type="submit">Submit</Button>
+                <DialogClose />
               </DialogFooter>
             </form>
           </Form>

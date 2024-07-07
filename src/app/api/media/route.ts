@@ -44,7 +44,7 @@ export async function PUT(req: NextRequest) {
     if (!updateMedia) {
       return handleResponse("media was not found", 404);
     }
-    return handleResponse("media was updated", 204);
+    return handleResponse("media was updated", 200);
   } catch (error) {
     return handleResponse(error, 500);
   }

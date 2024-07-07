@@ -38,6 +38,7 @@ import MyPopover from "@/components/REUSABLE/MyPopover/MyPopover";
 import { OptionProps } from "@/types";
 import OptionBtn from "@/components/REUSABLE/OptionBtn/OptionBtn";
 import RenameAudio from "@/components/REUSABLE/RenameAudio/RenameAudio";
+import audioInstanceStore from "@/zustand/audioInstance.store";
 
 export default function HomePage() {
   const { user } = useUser();
@@ -102,7 +103,7 @@ const HeadPanel = () => {
   );
 };
 
-const HomePageRenderItem = ({ i, mediaSrc, mediaName, _id }) => {
+const HomePageRenderItem = ({ customName, i, mediaSrc, mediaName, _id }) => {
   const { play, editPlay } = playStore((state) => state);
   const { audioFiles } = audioFilesStore((state) => state);
 
@@ -132,16 +133,16 @@ const HomePageRenderItem = ({ i, mediaSrc, mediaName, _id }) => {
           editSelectedAudio({ src: mediaSrc, index: i });
           editPlay(true);
         }}
-        className="w-full overflow-hidden flex items-center h-full text-nowrap "
+        className="w-full  overflow-hidden flex items-center self-stretch text-nowrap "
       >
-        {mediaName.slice(6)}
+        {customName.includes("audio/") ? customName.slice(6) : customName}
       </p>
       <div className="flex gap-x-[1.5rem] items-center text-[1rem]">
         <MyPopover
           containerStyles="min-w-[9rem] translate-x-[-5rem] max-w-[13rem] flex-col flex gap-y-3"
           trigger={<FontAwesomeIcon icon={faEllipsis} />}
         >
-          <RenameAudio />
+          <RenameAudio _id={_id} name={customName} />
           {options.map((e, i) => (
             <OptionBtn key={i} {...e} />
           ))}
@@ -158,6 +159,11 @@ const DeleteBtn = ({ itemName, itemId, itemSrc }) => {
   const { selectedAudio, editSelectedAudio } = selectedAudioStore(
     (state) => state
   );
+  const { audioInstance, editAudioInstance } = audioInstanceStore(
+    (state) => state
+  );
+  const { play, editPlay } = playStore((state) => state);
+
   const { user } = useUser();
   const { toast } = useToast();
   const { editLoading } = loadingStore((state) => state);
@@ -166,6 +172,7 @@ const DeleteBtn = ({ itemName, itemId, itemSrc }) => {
       const res = await axios.get(
         `${APP_API_URL}/api/media?userId=${user?.id}`
       );
+
       editAudioFiles(res.data);
     } catch (error) {
       handleError(error);
@@ -174,16 +181,25 @@ const DeleteBtn = ({ itemName, itemId, itemSrc }) => {
   const handleDelete = async () => {
     try {
       editLoading(true);
-      // console.log(itemId);
-      // /api/media?id
+      editPlay(false);
+      if (audioInstance && itemSrc == selectedAudio.src) {
+        audioInstance.currentTime = 0.0;
+        audioInstance.pause();
+      }
+      editAudioInstance(null);
       await deleteAudio(itemName);
       let res = await axios.delete(`${APP_API_URL}/api/media?id=${itemId}`);
       await getAudios();
       // find a solution delete an audio if it was playing
-      toast({ description: "The Audio was deleted successfully" });
+      toast({
+        description: "The Audio was deleted successfully",
+      });
     } catch (error) {
       handleError(error);
-      toast({ variant: "destructive", description: "Something went wrong" });
+      toast({
+        variant: "destructive",
+        description: "Something went wrong",
+      });
     } finally {
       editLoading(false);
     }
