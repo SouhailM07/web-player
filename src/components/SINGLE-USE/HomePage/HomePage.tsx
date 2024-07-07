@@ -8,16 +8,20 @@ import { useEffect } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faBars,
+  faDownload,
   faEllipsis,
+  faHeart,
   faPenToSquare,
   faSearch,
   faTrash,
+  IconDefinition,
 } from "@fortawesome/free-solid-svg-icons";
 import { motion } from "framer-motion";
 // ! zustand states
 import selectedAudioStore from "@/zustand/selectedAudio.store";
 import audioFilesStore from "@/zustand/audioFiles.store";
 import playStore from "@/zustand/play.store";
+import searchAudioStore from "@/zustand/searchAudio.store";
 import MyDialog from "@/components/REUSABLE/MyDialog/MyDialog";
 import {
   DialogClose,
@@ -31,12 +35,13 @@ import { deleteAudio } from "@/lib/fb_hanlders";
 import { useToast } from "@/components/ui/use-toast";
 import MyButton from "@/components/REUSABLE/MyButton/MyButton";
 import MyPopover from "@/components/REUSABLE/MyPopover/MyPopover";
+import { OptionProps } from "@/types";
 
 export default function HomePage() {
   const { user } = useUser();
   const { audioFiles, editAudioFiles } = audioFilesStore((state) => state);
   const { editLoading } = loadingStore((state) => state);
-
+  const { searchAudio } = searchAudioStore((state) => state);
   const getAudios = async () => {
     try {
       editLoading(true);
@@ -56,15 +61,17 @@ export default function HomePage() {
       getAudios();
     }
   }, [user]);
-
+  let arrOfFiles = audioFiles.filter((e) =>
+    e.mediaName.toLowerCase().includes(searchAudio.toLowerCase())
+  );
   return (
     <main className="flexCenter flex-col gap-y-[1rem] text-white px-[2rem]">
       <HeadPanel />
       <ul className="max-h-audioContainer scrollable-component overflow-y-auto  bg-neutral-800 pt-[1rem] rounded-lg text-[0.7rem]  w-full flex flex-col ">
-        {!audioFiles.length ? (
+        {!arrOfFiles.length ? (
           <li className="text-center h-[3rem]">Empty</li>
         ) : (
-          audioFiles.map((e, i) => <HomePageRenderItem {...e} key={i} i={i} />)
+          arrOfFiles.map((e, i) => <HomePageRenderItem {...e} key={i} i={i} />)
         )}
       </ul>
     </main>
@@ -73,12 +80,14 @@ export default function HomePage() {
 
 const HeadPanel = () => {
   const { audioFiles, editAudioFiles } = audioFilesStore((state) => state);
-
+  const { searchAudio, editSearchAudio } = searchAudioStore((state) => state);
   return (
     <section className="flexBetween w-full">
       <article className="flexCenter  bg-neutral-800 p-2 rounded-lg h-[2.5rem]">
         <FontAwesomeIcon icon={faSearch} className="text-neutral-400" />
         <input
+          value={searchAudio}
+          onChange={(e) => editSearchAudio(e.target.value)}
           className=" rounded-md indent-[1rem] text-[0.7rem] h-full outline-none border-none min-w-[20rem] text-white bg-transparent"
           placeholder="search..."
           type="text"
@@ -98,6 +107,23 @@ const HomePageRenderItem = ({ i, mediaSrc, mediaName, _id }) => {
   const { selectedAudio, editSelectedAudio } = selectedAudioStore(
     (state) => state
   );
+  const options: OptionProps[] = [
+    {
+      icon: faPenToSquare,
+      label: "Rename",
+      color: "text-neutral-300",
+    },
+    {
+      icon: faHeart,
+      label: "Add to favorite",
+      color: "text-black",
+    },
+    {
+      icon: faDownload,
+      label: "Install",
+      color: "text-cyan-300",
+    },
+  ];
   return (
     <li
       className={`${selectedAudio?.index === i && "text-cyan-300"} ${
@@ -115,16 +141,12 @@ const HomePageRenderItem = ({ i, mediaSrc, mediaName, _id }) => {
       </p>
       <div className="flex gap-x-[1.5rem] items-center text-[1rem]">
         <MyPopover
-          containerStyles="w-[9rem] flex-col flex gap-y-3"
+          containerStyles="min-w-[9rem] translate-x-[-5rem] max-w-[13rem] flex-col flex gap-y-3"
           trigger={<FontAwesomeIcon icon={faEllipsis} />}
         >
-          <div className="flexBetween">
-            <span>Rename</span>
-            <FontAwesomeIcon
-              icon={faPenToSquare}
-              className="text-neutral-300"
-            />
-          </div>
+          {options.map((e, i) => (
+            <OptionBtn key={i} {...e} />
+          ))}
           <DeleteBtn itemName={mediaName} itemId={_id} itemSrc={mediaSrc} />
         </MyPopover>
         <FontAwesomeIcon icon={faBars} />
@@ -201,3 +223,10 @@ const DeleteBtn = ({ itemName, itemId, itemSrc }) => {
     </MyDialog>
   );
 };
+
+const OptionBtn = ({ icon, label, color }: OptionProps) => (
+  <div className="flexBetween">
+    <span>{label}</span>
+    <FontAwesomeIcon icon={icon} className={color} />
+  </div>
+);

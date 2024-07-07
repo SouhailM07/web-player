@@ -6,3 +6,9 @@ export interface links_t {
   handler?: any;
   customStyle?: string;
 }
+
+export interface OptionProps {
+  icon: IconDefinition;
+  label: string;
+  color: string;
+}
