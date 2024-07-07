@@ -36,6 +36,8 @@ import { useToast } from "@/components/ui/use-toast";
 import MyButton from "@/components/REUSABLE/MyButton/MyButton";
 import MyPopover from "@/components/REUSABLE/MyPopover/MyPopover";
 import { OptionProps } from "@/types";
+import OptionBtn from "@/components/REUSABLE/OptionBtn/OptionBtn";
+import RenameAudio from "@/components/REUSABLE/RenameAudio/RenameAudio";
 
 export default function HomePage() {
   const { user } = useUser();
@@ -109,11 +111,6 @@ const HomePageRenderItem = ({ i, mediaSrc, mediaName, _id }) => {
   );
   const options: OptionProps[] = [
     {
-      icon: faPenToSquare,
-      label: "Rename",
-      color: "text-neutral-300",
-    },
-    {
       icon: faHeart,
       label: "Add to favorite",
       color: "text-black",
@@ -144,6 +141,7 @@ const HomePageRenderItem = ({ i, mediaSrc, mediaName, _id }) => {
           containerStyles="min-w-[9rem] translate-x-[-5rem] max-w-[13rem] flex-col flex gap-y-3"
           trigger={<FontAwesomeIcon icon={faEllipsis} />}
         >
+          <RenameAudio />
           {options.map((e, i) => (
             <OptionBtn key={i} {...e} />
           ))}
@@ -223,10 +221,3 @@ const DeleteBtn = ({ itemName, itemId, itemSrc }) => {
     </MyDialog>
   );
 };
-
-const OptionBtn = ({ icon, label, color }: OptionProps) => (
-  <div className="flexBetween">
-    <span>{label}</span>
-    <FontAwesomeIcon icon={icon} className={color} />
-  </div>
-);
