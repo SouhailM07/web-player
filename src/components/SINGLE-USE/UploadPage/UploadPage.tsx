@@ -30,6 +30,7 @@ import loadingStore from "@/zustand/loading.store";
 import selectedAudioStore from "@/zustand/selectedAudio.store";
 import audioFilesStore from "@/zustand/audioFiles.store";
 import { useToast } from "@/components/ui/use-toast";
+import MyButton from "@/components/REUSABLE/MyButton/MyButton";
 
 export const UploadContext: any = createContext("");
 
@@ -111,7 +112,7 @@ export default function UploadPage() {
         <Form {...form}>
           <form
             onSubmit={form.handleSubmit(onSubmit)}
-            className="space-y-8 flex-col flex"
+            className="space-y-8 flex-col flex items-end"
           >
             <FormField
               control={form.control}
@@ -133,9 +134,14 @@ export default function UploadPage() {
                 </FormItem>
               )}
             />
-            <Button type="submit" className="self-end">
-              Submit
-            </Button>
+            <MyButton
+              icon={faUpload}
+              label="Upload"
+              borderBottomColor="#06b5d4"
+              btnType="button"
+              type="submit"
+              color="bg-cyan-400 text-white "
+            />
             <DialogClose ref={closeRef} className="absolute z-[-1]" />
           </form>
         </Form>

@@ -21,6 +21,7 @@ import audioFilesStore from "@/zustand/audioFiles.store";
 import randomPlayStore from "@/zustand/randomPlay.store";
 import repeatPlayStore from "@/zustand/repeatPlay.store";
 import audioInstanceStore from "@/zustand/audioInstance.store";
+import audioVolumeStore from "@/zustand/audioVolume.store";
 /*==============================================================================================*/
 // main component section
 /*==============================================================================================*/
@@ -151,6 +152,7 @@ const Controls = () => {
       }`,
     },
   ];
+  // const { audioVolume, editAudioVolume } = audioVolumeStore((state) => state);
 
   useEffect(() => {
     console.log("check render from controls");
@@ -192,11 +194,13 @@ const TrackLine = () => {
   const { audioFiles } = audioFilesStore((state) => state);
   // Update sliderValue when audioInstance or play state changes
   const { repeatPlay, editRepeatPlay } = repeatPlayStore((state) => state);
+
   useEffect(() => {
     if (!audioInstance) {
       setSliderValue(0);
       return;
     }
+
     console.log("check render from interval");
     const intervalId = setInterval(async () => {
       if (audioInstance && play) {
@@ -263,20 +267,27 @@ const TrackLine = () => {
 };
 
 const SoundControl = () => {
+  const { audioVolume, editAudioVolume } = audioVolumeStore((state) => state);
+
   const { audioInstance, editAudioInstance } = audioInstanceStore(
     (state) => state
   );
   let handleVolume = (e) => {
     // @ts-ignore
     audioInstance.volume = e[0] / 100;
+    editAudioVolume(e[0] / 100);
   };
-
+  useEffect(() => {
+    if (audioInstance) {
+      audioInstance.volume = audioVolume;
+    }
+  }, [audioInstance]);
   return (
     <article className="flexBetween gap-x-2 w-[6rem]">
       <FontAwesomeIcon icon={faVolumeLow} className="h-[1rem] aspect-square" />
       <Slider
         onValueChange={handleVolume}
-        defaultValue={[audioInstance?.volume || 1 * 100]}
+        value={[audioVolume * 100]}
         max={100}
         step={1}
       />

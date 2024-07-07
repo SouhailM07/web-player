@@ -65,7 +65,7 @@ export default function HomePage() {
     }
   }, [user]);
   let arrOfFiles = audioFiles.filter((e) =>
-    e.mediaName.toLowerCase().includes(searchAudio.toLowerCase())
+    e.customName.toLowerCase().includes(searchAudio.toLowerCase())
   );
   return (
     <main className="flexCenter flex-col gap-y-[1rem] text-white px-[2rem]">
@@ -221,12 +221,19 @@ const DeleteBtn = ({ itemName, itemId, itemSrc }) => {
           <DialogFooter>
             <div className="flexBetween w-full">
               <DialogClose>
-                <MyButton label="Cancel" color="bg-cyan-500 text-white" />
+                <MyButton
+                  btnType="divButton"
+                  label="Cancel"
+                  borderBottomColor="rgb(8 145 178)"
+                  color="bg-cyan-500 text-white"
+                />
               </DialogClose>
               <DialogClose onClick={handleDelete}>
                 <MyButton
+                  btnType="divButton"
                   label="Delete"
                   icon={faTrash}
+                  borderBottomColor="rgb(220 38 38)"
                   color="bg-red-500 text-white"
                 />
               </DialogClose>

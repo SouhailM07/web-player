@@ -10,7 +10,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import MyButton from "../MyButton/MyButton";
-
+import { motion } from "framer-motion";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -32,6 +32,8 @@ import loadingStore from "@/zustand/loading.store";
 import { Button } from "@/components/ui/button";
 import audioFilesStore from "@/zustand/audioFiles.store";
 import { useUser } from "@clerk/nextjs";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { useRef } from "react";
 
 const formSchema = z.object({
   audioName: z.string().min(3, {
@@ -57,6 +59,7 @@ export default function RenameAudio({
   const { editLoading } = loadingStore((state) => state);
   const { user } = useUser();
   const { editAudioFiles } = audioFilesStore((state) => state);
+  const closeDialogRef = useRef<HTMLButtonElement | null>(null);
   const getAudios = async () => {
     try {
       editLoading(true);
@@ -71,19 +74,22 @@ export default function RenameAudio({
     }
   };
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
-    // console.log(values);
     try {
-      editLoading(true);
-      await axios.put(`${APP_API_URL}/api/media?id=${_id}`, {
-        customName: values.audioName,
-      });
-      toast({ description: "audio name was updated" });
-      await getAudios();
+      // console.log(values);
+      if (values.audioName !== name) {
+        editLoading(true);
+        await axios.put(`${APP_API_URL}/api/media?id=${_id}`, {
+          customName: values.audioName,
+        });
+        toast({ description: "audio name was updated" });
+        await getAudios();
+      }
     } catch (error) {
       handleError(error);
       toast({ variant: "destructive", description: "something went wrong" });
     } finally {
       editLoading(false);
+      closeDialogRef.current?.click();
     }
   };
   return (
@@ -115,8 +121,15 @@ export default function RenameAudio({
                 )}
               />
               <DialogFooter>
-                <Button type="submit">Submit</Button>
-                <DialogClose />
+                <MyButton
+                  icon={faSave}
+                  label="Rename"
+                  borderBottomColor="#06b5d4"
+                  btnType="button"
+                  type="submit"
+                  color="bg-cyan-400 text-white"
+                />
+                <DialogClose ref={closeDialogRef} />
               </DialogFooter>
             </form>
           </Form>
