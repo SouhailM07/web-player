@@ -22,6 +22,7 @@ import randomPlayStore from "@/zustand/randomPlay.store";
 import repeatPlayStore from "@/zustand/repeatPlay.store";
 import audioInstanceStore from "@/zustand/audioInstance.store";
 import audioVolumeStore from "@/zustand/audioVolume.store";
+import { toast } from "@/components/ui/use-toast";
 /*==============================================================================================*/
 // main component section
 /*==============================================================================================*/
@@ -216,10 +217,17 @@ const TrackLine = () => {
               src: audioFiles[0].mediaSrc,
               index: 0,
             });
+
+            toast({
+              title: "now playing",
+              description: audioFiles[0].customName,
+              duration: 2000,
+            });
           } else if (
             (selectedAudio.index !== audioFiles.length - 1 &&
               repeatPlay == 0) ||
-            randomPlay
+            randomPlay ||
+            (selectedAudio.index !== audioFiles.length - 1 && repeatPlay == 1)
           ) {
             let randomNumber = Math.floor(Math.random() * audioFiles.length);
             await editSelectedAudio({
@@ -227,6 +235,13 @@ const TrackLine = () => {
                 randomPlay ? randomNumber : selectedAudio.index + 1
               ].mediaSrc,
               index: randomPlay ? randomNumber : selectedAudio.index + 1,
+            });
+            toast({
+              title: "now playing",
+              description:
+                audioFiles[randomPlay ? randomNumber : selectedAudio.index + 1]
+                  .customName,
+              duration: 2000,
             });
           }
         }
