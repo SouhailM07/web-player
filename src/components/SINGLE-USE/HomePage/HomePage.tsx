@@ -1,4 +1,5 @@
 "use client";
+import dynamic from "next/dynamic";
 import "./homepage.css";
 import { APP_API_URL } from "@/lib/APP_API_URL";
 import handleError from "@/lib/handleError";
@@ -11,18 +12,14 @@ import {
   faDownload,
   faEllipsis,
   faHeart,
-  faPenToSquare,
   faSearch,
   faTrash,
-  IconDefinition,
 } from "@fortawesome/free-solid-svg-icons";
-import { motion } from "framer-motion";
 // ! zustand states
 import selectedAudioStore from "@/zustand/selectedAudio.store";
 import audioFilesStore from "@/zustand/audioFiles.store";
 import playStore from "@/zustand/play.store";
 import searchAudioStore from "@/zustand/searchAudio.store";
-import MyDialog from "@/components/REUSABLE/MyDialog/MyDialog";
 import {
   DialogClose,
   DialogContent,
@@ -33,15 +30,24 @@ import {
 import loadingStore from "@/zustand/loading.store";
 import { deleteAudio } from "@/lib/fb_hanlders";
 import { useToast } from "@/components/ui/use-toast";
-import MyButton from "@/components/REUSABLE/MyButton/MyButton";
 import MyPopover from "@/components/REUSABLE/MyPopover/MyPopover";
 import { OptionProps } from "@/types";
 import OptionBtn from "@/components/REUSABLE/OptionBtn/OptionBtn";
-import RenameAudio from "@/components/REUSABLE/RenameAudio/RenameAudio";
 import audioInstanceStore from "@/zustand/audioInstance.store";
+import MyButton from "@/components/REUSABLE/MyButton/MyButton";
+//
+const DynamicRenameAudio = dynamic(
+  () => import("@/components/REUSABLE/RenameAudio/RenameAudio")
+);
+const DynamicMyPopover = dynamic(
+  () => import("@/components/REUSABLE/MyPopover/MyPopover")
+);
+const DynamicMyDialog = dynamic(
+  () => import("@/components/REUSABLE/MyDialog/MyDialog")
+);
 
 export default function HomePage() {
-  const { user } = useUser();
+  const { user, isSignedIn, isLoaded } = useUser();
   const { audioFiles, editAudioFiles } = audioFilesStore((state) => state);
   const { editLoading } = loadingStore((state) => state);
   const { searchAudio } = searchAudioStore((state) => state);
@@ -60,10 +66,8 @@ export default function HomePage() {
   };
 
   useEffect(() => {
-    if (user?.id) {
-      getAudios();
-    }
-  }, [user]);
+    isSignedIn && isLoaded ? getAudios() : editAudioFiles([]);
+  }, [isSignedIn]);
   let arrOfFiles = audioFiles.filter((e) =>
     e.customName.toLowerCase().includes(searchAudio.toLowerCase())
   );
@@ -138,16 +142,16 @@ const HomePageRenderItem = ({ customName, i, mediaSrc, mediaName, _id }) => {
         {customName.includes("audio/") ? customName.slice(6) : customName}
       </p>
       <div className="flex gap-x-[1.5rem] items-center text-[1rem]">
-        <MyPopover
+        <DynamicMyPopover
           containerStyles="min-w-[9rem] translate-x-[-5rem] max-w-[13rem] flex-col flex gap-y-3"
           trigger={<FontAwesomeIcon icon={faEllipsis} />}
         >
-          <RenameAudio _id={_id} name={customName} />
+          <DynamicRenameAudio _id={_id} name={customName} />
           {options.map((e, i) => (
             <OptionBtn key={i} {...e} />
           ))}
           <DeleteBtn itemName={mediaName} itemId={_id} itemSrc={mediaSrc} />
-        </MyPopover>
+        </DynamicMyPopover>
         <FontAwesomeIcon icon={faBars} />
       </div>
     </li>
@@ -205,7 +209,7 @@ const DeleteBtn = ({ itemName, itemId, itemSrc }) => {
     }
   };
   return (
-    <MyDialog
+    <DynamicMyDialog
       trigger={
         <div className="flexBetween">
           <span>Delete</span>
@@ -241,6 +245,6 @@ const DeleteBtn = ({ itemName, itemId, itemSrc }) => {
           </DialogFooter>
         </DialogContent>
       </DialogHeader>
-    </MyDialog>
+    </DynamicMyDialog>
   );
 };

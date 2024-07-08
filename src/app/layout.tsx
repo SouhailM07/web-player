@@ -21,11 +21,11 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       <html lang="en">
         <body className={audiowide.className}>
           <Loading />
-          <DontRenderWhen route={["/login", "/upload"]}>
+          <DontRenderWhen route={["/login", "/upload", "/profile"]}>
             <Navbar />
           </DontRenderWhen>
           {children}
-          <DontRenderWhen route={["/login", "/upload"]}>
+          <DontRenderWhen route={["/login", "/upload", "/profile"]}>
             <PlayPanel />
           </DontRenderWhen>
           <Toaster />

@@ -65,7 +65,8 @@ export default function MyLogin() {
             className="border-2 grid grid-cols-[40%_60%] justify-items-center items-center  bg-white font-medium border-black w-[17rem] h-[3rem] rounded-full"
           >
             <Image
-              className=" "
+              fetchPriority="high"
+              loading="eager"
               src={e.img}
               alt="logo"
               width={50}

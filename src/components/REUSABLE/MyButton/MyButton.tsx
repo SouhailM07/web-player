@@ -46,6 +46,7 @@ export default function MyButton({
   return (
     <motion.button
       type={type}
+      onClick={handler}
       animate={{ borderBottom: "5px solid transparent" }}
       whileHover={{ borderBottom: `5px solid ${borderBottomColor}`, y: -5 }}
       whileTap={{ y: 5, borderBottom: "5px solid transparent" }}
