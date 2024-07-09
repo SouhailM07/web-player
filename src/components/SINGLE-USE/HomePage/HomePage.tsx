@@ -55,14 +55,14 @@ export default function HomePage() {
   const { searchAudio } = searchAudioStore((state) => state);
   const getAudios = async () => {
     try {
-      if (isSignedIn) {
-        editLoading(true);
-        const res = await axios.get(
-          // `${APP_API_URL}/api/media?userId=${user?.id}`
-          `${APP_API_URL}/api/media?userId=user_2ihOoYdBTP4cTHayAinUznxmAl9`
-        );
-        editAudioFiles(res.data);
-      }
+      // if (isSignedIn) {
+      editLoading(true);
+      const res = await axios.get(
+        // `${APP_API_URL}/api/media?userId=${user?.id}`
+        `${APP_API_URL}/api/media?userId=user_2ihOoYdBTP4cTHayAinUznxmAl9`
+      );
+      editAudioFiles(res.data);
+      // }
     } catch (error) {
       handleError(error);
     } finally {
