@@ -9,7 +9,7 @@ html {
 }
 
 body {
-  @apply bg-[url("../public/wallpaper.webp")] bg-fixed bg-cover min-h-screen w-full;
+  @apply bg-black bg-[url("../public/wallpaper.webp")] bg-fixed bg-cover min-h-screen w-full;
 }
 
 .flexBetween {

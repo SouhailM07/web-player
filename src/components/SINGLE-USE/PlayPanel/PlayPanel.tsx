@@ -130,7 +130,7 @@ const Controls = () => {
       icon: play ? faPause : faPlay,
       ariaLabel: "play btn",
       handler: handlePlay,
-      customStyle: ` bg-white text-black h-[1.2rem] p-2 grid place-items-center aspect-square rounded-full`,
+      customStyle: `bg-white text-black h-[1.2rem] text-[1rem] p-2 grid place-items-center aspect-square rounded-full`,
     },
     {
       icon: faForwardStep,

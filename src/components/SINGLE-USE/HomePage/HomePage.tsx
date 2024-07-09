@@ -1,6 +1,5 @@
 "use client";
 import dynamic from "next/dynamic";
-import "./homepage.css";
 import { APP_API_URL } from "@/lib/APP_API_URL";
 import handleError from "@/lib/handleError";
 import { useUser } from "@clerk/nextjs";
@@ -83,12 +82,12 @@ const HeadPanel = () => {
       <article className="flexCenter max-md:w-full  bg-neutral-800 p-2 rounded-lg h-[2.5rem]">
         <FontAwesomeIcon
           icon={faSearch}
-          className="text-neutral-400 text-[1rem]"
+          className="h-[1rem] aspect-square text-neutral-400 text-[1rem]"
         />
         <input
           value={searchAudio}
           onChange={(e) => editSearchAudio(e.target.value)}
-          className=" rounded-md indent-[1rem] text-[0.7rem] h-full outline-none border-none w-full md:min-w-[20rem] text-white bg-transparent"
+          className=" rounded-sm indent-[1rem] text-[0.7rem] h-full outline-none border-none w-full md:min-w-[20rem] text-white bg-transparent"
           placeholder="search..."
           type="text"
         />
