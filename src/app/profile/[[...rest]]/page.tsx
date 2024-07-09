@@ -17,8 +17,9 @@ export default function ProfileRoute() {
   }, [isSignedIn]);
   return (
     <main className="w-full h-full gap-y-[1rem] items-center flex flex-col-reverse ">
-      <UserProfile />
+      {isSignedIn && isLoaded && <UserProfile />}
       <button
+        aria-label="go back btn"
         onClick={handleBack}
         className="m-3 h-[3rem] aspect-square rounded-full bg-white flexCenter self-end border-2 border-black sticky top-0"
       >

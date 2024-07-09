@@ -39,7 +39,7 @@ const SignInBtn = ({ checker }) => (
     {checker ? (
       <MyUserProfile />
     ) : (
-      <Link href="/login">
+      <Link aria-label="sign in link" href="/login">
         <FontAwesomeIcon
           aria-label="sign in btn"
           icon={faUserCircle}

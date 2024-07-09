@@ -80,7 +80,10 @@ export default function HomePage() {
   return (
     <main className="max-w-[90rem] mx-auto  flexCenter flex-col gap-y-[1rem] text-white max-md:px-[1rem] px-[2rem]">
       <HeadPanel />
-      <ul className="max-h-audioContainer max-md:max-h-autoContainerSm scrollable-component overflow-y-auto  bg-neutral-800 pt-[1rem] rounded-lg text-[0.7rem]  w-full flex flex-col ">
+      <ul
+        role="list"
+        className="max-h-audioContainer max-md:max-h-autoContainerSm scrollable-component overflow-y-auto  bg-neutral-800 pt-[1rem] rounded-lg text-[0.7rem]  w-full flex flex-col "
+      >
         {!arrOfFiles.length ? (
           <li className="text-center h-[3rem]">Empty</li>
         ) : (
@@ -140,6 +143,7 @@ const HomePageRenderItem = ({ customName, i, mediaSrc, mediaName, _id }) => {
   ];
   return (
     <li
+      role="listitem"
       className={`${selectedAudio?.index === i && "text-cyan-300"} ${
         i != audioFiles.length - 1 && "border-b"
       } min-h-[3rem] gap-x-5 hover:text-cyan-500 border-white pl-[1.5rem] pr-[0.8rem] flexBetween cursor-pointer`}
@@ -156,7 +160,9 @@ const HomePageRenderItem = ({ customName, i, mediaSrc, mediaName, _id }) => {
       <div className="flex gap-x-[1.5rem] items-center text-[1rem]">
         <DynamicMyPopover
           containerStyles="min-w-[9rem] translate-x-[-5rem] max-w-[13rem] flex-col flex gap-y-2"
-          trigger={<FontAwesomeIcon icon={faEllipsis} />}
+          trigger={
+            <FontAwesomeIcon aria-label="more details btn" icon={faEllipsis} />
+          }
         >
           <DynamicRenameAudio _id={_id} name={customName} />
           {options.map((e, i) => (
@@ -164,7 +170,7 @@ const HomePageRenderItem = ({ customName, i, mediaSrc, mediaName, _id }) => {
           ))}
           <DeleteBtn itemName={customName} itemId={_id} itemSrc={mediaSrc} />
         </DynamicMyPopover>
-        <FontAwesomeIcon icon={faBars} />
+        <FontAwesomeIcon aria-label="drag btn" icon={faBars} />
       </div>
     </li>
   );
