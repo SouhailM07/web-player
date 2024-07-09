@@ -5,12 +5,12 @@ import { getStorage } from "firebase/storage";
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
-  apiKey: "AIzaSyAO3rZNrasb8dPTBl3BtgV3OOWXWubjMH0",
-  authDomain: "web-player-2020d.firebaseapp.com",
-  projectId: "web-player-2020d",
-  storageBucket: "web-player-2020d.appspot.com",
-  messagingSenderId: "961230523176",
-  appId: "1:961230523176:web:b8ef4ed3a98b6afcbede1d",
+  apiKey: process.env.NEXT_PUBLIC_FB_API_KEY,
+  authDomain: process.env.NEXT_PUBLIC_FB_AUTH_DOMAIN,
+  projectId: process.env.NEXT_PUBLIC_FB_PROJECT_ID,
+  storageBucket: process.env.NEXT_PUBLIC_FB_STORAGE_BUCKET,
+  messagingSenderId: process.env.NEXT_PUBLIC_FB_MESSAGING_SENDER_ID,
+  appId: process.env.NEXT_PUBLIC_FB_APP_ID,
 };
 
 // Initialize Firebase
