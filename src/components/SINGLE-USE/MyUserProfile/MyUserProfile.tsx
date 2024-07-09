@@ -1,5 +1,4 @@
 "use client";
-import "./myuserprofile.css";
 import MyPopover from "@/components/REUSABLE/MyPopover/MyPopover";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {

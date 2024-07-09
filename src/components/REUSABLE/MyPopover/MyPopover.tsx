@@ -1,4 +1,3 @@
-import "./mypopover.css";
 import { ReactElement, ReactNode } from "react";
 import {
   Popover,

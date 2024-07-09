@@ -1,6 +1,6 @@
 "use client";
 import { AnimatePresence, motion } from "framer-motion";
-import loadingStore from "@/zustand/loading.store.js";
+import loadingStore from "@/zustand/loading.store.ts";
 
 export default function Loading() {
   const { loading } = loadingStore((state) => state);

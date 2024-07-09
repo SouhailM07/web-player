@@ -1,4 +1,3 @@
-import "./renameaudio.css";
 import MyDialog from "../MyDialog/MyDialog";
 import OptionBtn from "../OptionBtn/OptionBtn";
 import { faPenToSquare, faSave } from "@fortawesome/free-solid-svg-icons";
@@ -10,7 +9,6 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import MyButton from "../MyButton/MyButton";
-import { motion } from "framer-motion";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -29,10 +27,8 @@ import axios from "axios";
 import { useToast } from "@/components/ui/use-toast";
 import handleError from "@/lib/handleError";
 import loadingStore from "@/zustand/loading.store";
-import { Button } from "@/components/ui/button";
 import audioFilesStore from "@/zustand/audioFiles.store";
 import { useUser } from "@clerk/nextjs";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useRef } from "react";
 
 const formSchema = z.object({

@@ -1,5 +1,4 @@
 "use client";
-import "./playpanel.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faPause,

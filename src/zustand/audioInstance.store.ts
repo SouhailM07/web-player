@@ -1,9 +1,9 @@
 import { create } from "zustand";
 
-type AudioState = {
+interface AudioState {
   audioInstance: HTMLAudioElement | null;
   editAudioInstance: (audio: HTMLAudioElement | null) => void;
-};
+}
 
 const audioInstanceStore = create<AudioState>((set) => ({
   audioInstance: null,

@@ -58,7 +58,8 @@ export default function HomePage() {
       if (isSignedIn) {
         editLoading(true);
         const res = await axios.get(
-          `${APP_API_URL}/api/media?userId=${user?.id}`
+          // `${APP_API_URL}/api/media?userId=${user?.id}`
+          `${APP_API_URL}/api/media?userId=user_2ihOoYdBTP4cTHayAinUznxmAl9`
         );
         editAudioFiles(res.data);
       }
@@ -70,8 +71,9 @@ export default function HomePage() {
   };
 
   useEffect(() => {
-    isSignedIn && isLoaded ? getAudios() : editAudioFiles([]);
-  }, [isSignedIn]);
+    // isSignedIn && isLoaded ? getAudios() : editAudioFiles([]);
+    getAudios();
+  }, []);
   let arrOfFiles = audioFiles.filter((e) =>
     e.customName.toLowerCase().includes(searchAudio.toLowerCase())
   );
@@ -79,7 +81,7 @@ export default function HomePage() {
     <main className="max-w-[90rem] mx-auto  flexCenter flex-col gap-y-[1rem] text-white max-md:px-[1rem] px-[2rem]">
       <HeadPanel />
       <ul className="max-h-audioContainer max-md:max-h-autoContainerSm scrollable-component overflow-y-auto  bg-neutral-800 pt-[1rem] rounded-lg text-[0.7rem]  w-full flex flex-col ">
-        {!arrOfFiles.length || !isSignedIn ? (
+        {!arrOfFiles.length ? (
           <li className="text-center h-[3rem]">Empty</li>
         ) : (
           arrOfFiles.map((e, i) => <HomePageRenderItem {...e} key={i} i={i} />)

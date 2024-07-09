@@ -1,10 +1,10 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
-type AudioVolumeStoreProps = {
+interface AudioVolumeStoreProps {
   audioVolume: number;
   editAudioVolume: (volume: number) => void;
-};
+}
 
 const audioVolumeStore = create<AudioVolumeStoreProps>()(
   persist(

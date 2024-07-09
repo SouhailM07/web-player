@@ -1,8 +1,8 @@
 "use client";
-import "./mybutton.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { motion } from "framer-motion";
 import { IconDefinition } from "@fortawesome/free-solid-svg-icons";
+
 export default function MyButton({
   label,
   icon = null,
