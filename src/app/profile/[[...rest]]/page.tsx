@@ -1,7 +1,7 @@
 "use client";
-import MyButton from "@/components/REUSABLE/MyButton/MyButton";
 import { UserProfile } from "@clerk/nextjs";
-import { faArrowLeft, faArrowRight } from "@fortawesome/free-solid-svg-icons";
+import { faArrowRight } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useRouter } from "next/navigation";
 
 export default function ProfileRoute() {
@@ -9,15 +9,14 @@ export default function ProfileRoute() {
   // ! handler
   const handleBack = () => router.back();
   return (
-    <main className="w-full h-full flex items-start justify-center">
+    <main className="w-full h-full gap-y-[1rem] items-center flex flex-col-reverse ">
       <UserProfile />
-      <MyButton
-        label="Back"
-        color="bg-white absolute right-0 z-[100] "
-        icon={faArrowRight}
-        btnType="button"
-        handler={handleBack}
-      />
+      <button
+        onClick={handleBack}
+        className="m-3 h-[3rem] aspect-square rounded-full bg-white flexCenter self-end border-2 border-black sticky top-0"
+      >
+        <FontAwesomeIcon icon={faArrowRight} />
+      </button>
     </main>
   );
 }

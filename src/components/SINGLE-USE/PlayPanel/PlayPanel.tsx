@@ -15,6 +15,7 @@ import { useEffect, useState } from "react";
 import { Slider } from "@/components/ui/slider";
 import { motion } from "framer-motion";
 import formatTime from "@/lib/formatTime";
+import { toast } from "@/components/ui/use-toast";
 import selectedAudioStore from "@/zustand/selectedAudio.store";
 import playStore from "@/zustand/play.store";
 import audioFilesStore from "@/zustand/audioFiles.store";
@@ -22,22 +23,17 @@ import randomPlayStore from "@/zustand/randomPlay.store";
 import repeatPlayStore from "@/zustand/repeatPlay.store";
 import audioInstanceStore from "@/zustand/audioInstance.store";
 import audioVolumeStore from "@/zustand/audioVolume.store";
-import { toast } from "@/components/ui/use-toast";
+
 /*==============================================================================================*/
 // main component section
 /*==============================================================================================*/
 
 export default function PlayPanel() {
-  const { selectedAudio, editSelectedAudio } = selectedAudioStore(
-    (state) => state
-  );
-  // const [duration, setDuration] = useState(0);
-  // const [currentTime, setCurrentTime] = useState(0);
+  const { selectedAudio } = selectedAudioStore((state) => state);
   const { audioInstance, editAudioInstance } = audioInstanceStore(
     (state) => state
   );
 
-  // const [isPlaying, setIsPlaying] = useState<boolean>(false);
   const { play, editPlay } = playStore((state) => state);
   useEffect(() => {
     if (audioInstance) {
@@ -62,7 +58,7 @@ export default function PlayPanel() {
   }, [selectedAudio]);
 
   return (
-    <section className="grid grid-cols-[1fr_3fr_1fr] fixed text-white  bottom-0 w-full  py-[0.5rem] px-[2rem] bg-black">
+    <section className="md:grid md:grid-cols-3   max-md:space-y-2 lg:grid-cols-[15rem_10rem_15rem] justify-between gap-x-[1rem] fixed text-white  bottom-0 w-full  py-[0.5rem] px-[2rem] bg-black">
       <SoundControl />
       <Controls />
       <TrackLine />
@@ -78,9 +74,7 @@ const Controls = () => {
   const { selectedAudio, editSelectedAudio } = selectedAudioStore(
     (state) => state
   );
-  const { audioInstance, editAudioInstance } = audioInstanceStore(
-    (state) => state
-  );
+  const { audioInstance } = audioInstanceStore((state) => state);
   const { repeatPlay, editRepeatPlay } = repeatPlayStore((state) => state);
   const { randomPlay, editRandomPlay } = randomPlayStore((state) => state);
   const { audioFiles } = audioFilesStore((state) => state);
@@ -160,8 +154,8 @@ const Controls = () => {
   }, [selectedAudio, play]);
 
   return (
-    <article className="w-[20rem] space-y-2 place-self-center">
-      <ul role="list" className="flexBetween w-[10rem]  mx-auto">
+    <article className="w-[12rem] max-md:mx-auto  space-y-2 place-self-center">
+      <ul role="list" className="flexBetween w-full">
         {controls.map((e, i) => (
           <motion.li
             whileHover={{ scale: 1.2 }}
@@ -187,11 +181,11 @@ const TrackLine = () => {
     (state) => state
   );
   const [sliderValue, setSliderValue] = useState(0);
-  const { play, editPlay } = playStore((state) => state);
+  const { play } = playStore((state) => state);
   const { selectedAudio, editSelectedAudio } = selectedAudioStore(
     (state) => state
   );
-  const { randomPlay, editRandomPlay } = randomPlayStore((state) => state);
+  const { randomPlay } = randomPlayStore((state) => state);
   const { audioFiles } = audioFilesStore((state) => state);
   // Update sliderValue when audioInstance or play state changes
   const { repeatPlay, editRepeatPlay } = repeatPlayStore((state) => state);
@@ -256,15 +250,14 @@ const TrackLine = () => {
   }, [audioInstance, play, randomPlay, repeatPlay]);
 
   const handleSliderChange = (value) => {
-    setSliderValue(value[0]);
-    if (audioInstance) {
-      // Adjust currentTime of audioInstance based on slider value
+    if (audioInstance && selectedAudio) {
+      setSliderValue(value[0]);
       audioInstance.currentTime = (value[0] / 100) * audioInstance.duration;
     }
   };
 
   return (
-    <div className="w-full flexBetween gap-x-2 select-none">
+    <div className="  w-full   flexBetween gap-x-2 select-none">
       <span className="text-[0.6rem]">
         {formatTime(audioInstance?.currentTime || 0)}
       </span>
@@ -284,9 +277,7 @@ const TrackLine = () => {
 const SoundControl = () => {
   const { audioVolume, editAudioVolume } = audioVolumeStore((state) => state);
 
-  const { audioInstance, editAudioInstance } = audioInstanceStore(
-    (state) => state
-  );
+  const { audioInstance } = audioInstanceStore((state) => state);
   let handleVolume = (e) => {
     // @ts-ignore
     audioInstance.volume = e[0] / 100;
@@ -298,7 +289,7 @@ const SoundControl = () => {
     }
   }, [audioInstance]);
   return (
-    <article className="flexBetween gap-x-2 w-[6rem]">
+    <article className="flexBetween gap-x-2 w-[6rem] max-md:hidden">
       <FontAwesomeIcon icon={faVolumeLow} className="h-[1rem] aspect-square" />
       <Slider
         onValueChange={handleVolume}

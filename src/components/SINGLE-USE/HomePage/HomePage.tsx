@@ -14,6 +14,7 @@ import {
   faHeart,
   faSearch,
   faTrash,
+  faVolumeLow,
 } from "@fortawesome/free-solid-svg-icons";
 // ! zustand states
 import selectedAudioStore from "@/zustand/selectedAudio.store";
@@ -30,11 +31,12 @@ import {
 import loadingStore from "@/zustand/loading.store";
 import { deleteAudio } from "@/lib/fb_hanlders";
 import { useToast } from "@/components/ui/use-toast";
-import MyPopover from "@/components/REUSABLE/MyPopover/MyPopover";
 import { OptionProps } from "@/types";
 import OptionBtn from "@/components/REUSABLE/OptionBtn/OptionBtn";
 import audioInstanceStore from "@/zustand/audioInstance.store";
 import MyButton from "@/components/REUSABLE/MyButton/MyButton";
+import { Slider } from "@/components/ui/slider";
+import audioVolumeStore from "@/zustand/audioVolume.store";
 //
 const DynamicRenameAudio = dynamic(
   () => import("@/components/REUSABLE/RenameAudio/RenameAudio")
@@ -53,11 +55,13 @@ export default function HomePage() {
   const { searchAudio } = searchAudioStore((state) => state);
   const getAudios = async () => {
     try {
-      editLoading(true);
-      const res = await axios.get(
-        `${APP_API_URL}/api/media?userId=${user?.id}`
-      );
-      editAudioFiles(res.data);
+      if (isSignedIn) {
+        editLoading(true);
+        const res = await axios.get(
+          `${APP_API_URL}/api/media?userId=${user?.id}`
+        );
+        editAudioFiles(res.data);
+      }
     } catch (error) {
       handleError(error);
     } finally {
@@ -72,10 +76,10 @@ export default function HomePage() {
     e.customName.toLowerCase().includes(searchAudio.toLowerCase())
   );
   return (
-    <main className="flexCenter flex-col gap-y-[1rem] text-white px-[2rem]">
+    <main className="max-w-[90rem] mx-auto  flexCenter flex-col gap-y-[1rem] text-white max-md:px-[1rem] px-[2rem]">
       <HeadPanel />
-      <ul className="max-h-audioContainer scrollable-component overflow-y-auto  bg-neutral-800 pt-[1rem] rounded-lg text-[0.7rem]  w-full flex flex-col ">
-        {!arrOfFiles.length ? (
+      <ul className="max-h-audioContainer max-md:max-h-autoContainerSm scrollable-component overflow-y-auto  bg-neutral-800 pt-[1rem] rounded-lg text-[0.7rem]  w-full flex flex-col ">
+        {!arrOfFiles.length || !isSignedIn ? (
           <li className="text-center h-[3rem]">Empty</li>
         ) : (
           arrOfFiles.map((e, i) => <HomePageRenderItem {...e} key={i} i={i} />)
@@ -89,18 +93,24 @@ const HeadPanel = () => {
   const { audioFiles, editAudioFiles } = audioFilesStore((state) => state);
   const { searchAudio, editSearchAudio } = searchAudioStore((state) => state);
   return (
-    <section className="flexBetween w-full">
-      <article className="flexCenter  bg-neutral-800 p-2 rounded-lg h-[2.5rem]">
+    <section className="flexBetween w-full max-md:flex-col gap-y-3">
+      <article className="md:hidden flexBetween w-full">
+        <SoundControl />
+        <div>
+          Files : <span>{audioFiles.length}</span>
+        </div>
+      </article>
+      <article className="flexCenter max-md:w-full  bg-neutral-800 p-2 rounded-lg h-[2.5rem]">
         <FontAwesomeIcon icon={faSearch} className="text-neutral-400" />
         <input
           value={searchAudio}
           onChange={(e) => editSearchAudio(e.target.value)}
-          className=" rounded-md indent-[1rem] text-[0.7rem] h-full outline-none border-none min-w-[20rem] text-white bg-transparent"
+          className=" rounded-md indent-[1rem] text-[0.7rem] h-full outline-none border-none w-full md:min-w-[20rem] text-white bg-transparent"
           placeholder="search..."
           type="text"
         />
       </article>
-      <article>
+      <article className="max-md:hidden">
         Files : <span>{audioFiles.length}</span>
       </article>
     </section>
@@ -143,14 +153,14 @@ const HomePageRenderItem = ({ customName, i, mediaSrc, mediaName, _id }) => {
       </p>
       <div className="flex gap-x-[1.5rem] items-center text-[1rem]">
         <DynamicMyPopover
-          containerStyles="min-w-[9rem] translate-x-[-5rem] max-w-[13rem] flex-col flex gap-y-3"
+          containerStyles="min-w-[9rem] translate-x-[-5rem] max-w-[13rem] flex-col flex gap-y-2"
           trigger={<FontAwesomeIcon icon={faEllipsis} />}
         >
           <DynamicRenameAudio _id={_id} name={customName} />
           {options.map((e, i) => (
             <OptionBtn key={i} {...e} />
           ))}
-          <DeleteBtn itemName={mediaName} itemId={_id} itemSrc={mediaSrc} />
+          <DeleteBtn itemName={customName} itemId={_id} itemSrc={mediaSrc} />
         </DynamicMyPopover>
         <FontAwesomeIcon icon={faBars} />
       </div>
@@ -210,18 +220,15 @@ const DeleteBtn = ({ itemName, itemId, itemSrc }) => {
   };
   return (
     <DynamicMyDialog
-      trigger={
-        <div className="flexBetween">
-          <span>Delete</span>
-          <FontAwesomeIcon icon={faTrash} className="text-red-500" />
-        </div>
-      }
+      trigger={<OptionBtn color="text-red-500" label="Delete" icon={faTrash} />}
     >
       <DialogHeader>
         <DialogTitle>Upload Audio file</DialogTitle>
         <DialogContent>
           Are you sure you want to delete
-          <span className="text-red-500"> {itemName.slice(6)}</span>
+          <span className="text-red-500">
+            {itemName.includes("audio/") ? itemName.slice(6) : itemName}
+          </span>
           <DialogFooter>
             <div className="flexBetween w-full">
               <DialogClose>
@@ -246,5 +253,32 @@ const DeleteBtn = ({ itemName, itemId, itemSrc }) => {
         </DialogContent>
       </DialogHeader>
     </DynamicMyDialog>
+  );
+};
+
+const SoundControl = () => {
+  const { audioVolume, editAudioVolume } = audioVolumeStore((state) => state);
+
+  const { audioInstance } = audioInstanceStore((state) => state);
+  let handleVolume = (e) => {
+    // @ts-ignore
+    audioInstance.volume = e[0] / 100;
+    editAudioVolume(e[0] / 100);
+  };
+  useEffect(() => {
+    if (audioInstance) {
+      audioInstance.volume = audioVolume;
+    }
+  }, [audioInstance]);
+  return (
+    <article className="flexBetween gap-x-2 w-[6rem] ">
+      <FontAwesomeIcon icon={faVolumeLow} className="h-[1rem] aspect-square" />
+      <Slider
+        onValueChange={handleVolume}
+        value={[audioVolume * 100]}
+        max={100}
+        step={1}
+      />
+    </article>
   );
 };

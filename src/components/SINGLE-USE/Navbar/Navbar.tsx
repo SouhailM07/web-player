@@ -19,7 +19,7 @@ export default function Navbar() {
     console.log(user ? "signed in" : "not signed in");
   }, [user]);
   return (
-    <header className="text-white px-[2rem] py-[1.2rem] bg-black">
+    <header className="text-white max-md:px-[1rem] px-[2rem] py-[1.2rem] bg-black">
       <nav className="flexBetween">
         <h1 className="flexCenter gap-x-[1rem]">Web Player</h1>
         <ul
