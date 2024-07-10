@@ -27,14 +27,13 @@ export default function HomePage() {
   const { searchAudio } = searchAudioStore((state) => state);
   const getAudios = async () => {
     try {
-      // if (isSignedIn) {
-      editLoading(true);
-      const res = await axios.get(
-        // `${APP_API_URL}/api/media?userId=${user?.id}`
-        `${APP_API_URL}/api/media?userId=user_2ihOoYdBTP4cTHayAinUznxmAl9`
-      );
-      editAudioFiles(res.data);
-      // }
+      if (isSignedIn) {
+        editLoading(true);
+        const res = await axios.get(
+          `${APP_API_URL}/api/media?userId=${user?.id}`
+        );
+        editAudioFiles(res.data);
+      }
     } catch (error) {
       handleError(error);
     } finally {
@@ -43,9 +42,8 @@ export default function HomePage() {
   };
 
   useEffect(() => {
-    // isSignedIn && isLoaded ? getAudios() : editAudioFiles([]);
-    getAudios();
-  }, []);
+    isSignedIn && isLoaded ? getAudios() : editAudioFiles([]);
+  }, [isSignedIn]);
   let arrOfFiles = audioFiles.filter((e) =>
     e.customName.toLowerCase().includes(searchAudio.toLowerCase())
   );
@@ -56,7 +54,7 @@ export default function HomePage() {
         role="list"
         className="max-h-audioContainer max-md:max-h-autoContainerSm scrollable-component overflow-y-auto  bg-neutral-800 pt-[1rem] rounded-lg text-[0.7rem]  w-full flex flex-col "
       >
-        {!arrOfFiles.length ? (
+        {!arrOfFiles.length || !isSignedIn ? (
           <li className="text-center h-[3rem]">Empty</li>
         ) : (
           arrOfFiles.map((e, i) => (

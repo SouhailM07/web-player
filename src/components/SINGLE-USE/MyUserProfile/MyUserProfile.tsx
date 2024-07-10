@@ -16,7 +16,10 @@ export default function MyUserProfile() {
 
   const router = useRouter();
   // ! handlers
-  const handleLogout = () => signOut();
+  const handleLogout = () => {
+    signOut();
+    // setTimeout(() => router.refresh(), 100);
+  };
   const handleRedirectToProfile = () => {
     router.push("/profile");
   };
