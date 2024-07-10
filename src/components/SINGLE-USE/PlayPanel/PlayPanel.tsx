@@ -1,6 +1,5 @@
 "use client";
 import { Slider } from "@/components/ui/slider";
-import { AudioProvider } from "@/context/AudioContext";
 import { useAudio } from "@/context/AudioContext";
 import formatTime from "@/lib/formatTime";
 import { faVolumeLow } from "@fortawesome/free-solid-svg-icons";
@@ -9,13 +8,11 @@ import { motion } from "framer-motion";
 
 export default function PlayPanel() {
   return (
-    <AudioProvider>
-      <section className="md:grid md:grid-cols-3 max-md:space-y-2 lg:grid-cols-[15rem_10rem_15rem] justify-between gap-x-[1rem] fixed text-white bottom-0 w-full py-[0.5rem] px-[2rem] bg-black">
-        <SoundControl />
-        <Controls />
-        <TrackLine />
-      </section>
-    </AudioProvider>
+    <section className="md:grid md:grid-cols-3 max-md:space-y-2 lg:grid-cols-[15rem_10rem_15rem] justify-between gap-x-[1rem] fixed text-white bottom-0 w-full py-[0.5rem] px-[2rem] bg-black">
+      <SoundControl />
+      <Controls />
+      <TrackLine />
+    </section>
   );
 }
 

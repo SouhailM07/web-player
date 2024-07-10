@@ -12,5 +12,6 @@ export default function Navbar() {}
 
 ```ts
 function SignInBtn({ checker });
-function UploadPage(); //  imported component
+function DynamicUploadPage();
+function MyUserProfile();
 ```

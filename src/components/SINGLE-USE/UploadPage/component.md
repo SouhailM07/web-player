@@ -24,15 +24,12 @@ import audioFilesStore from "@/zustand/audioFiles.store";
 
 ## Context Api
 
-- LOCAL_CONTEXT = ({ children }: { children: ReactNode })
-- UploadContext
+```js
+const { getAudios }: any = useGlobalContext();
+```
 
 ## Handlers
 
-```js
-//
-function onSubmit(values)
-async function getAudios()
-// context handlers
-// none
-```
+| handlers  |
+| --------- |
+| getAudios |

@@ -27,9 +27,8 @@ import axios from "axios";
 import { useToast } from "@/components/ui/use-toast";
 import handleError from "@/lib/handleError";
 import loadingStore from "@/zustand/loading.store";
-import audioFilesStore from "@/zustand/audioFiles.store";
-import { useUser } from "@clerk/nextjs";
 import { useRef } from "react";
+import { useGlobalContext } from "@/context/GlobalContext";
 
 const formSchema = z.object({
   audioName: z.string().min(3, {
@@ -53,22 +52,8 @@ export default function RenameAudio({
   });
   const { toast } = useToast();
   const { editLoading } = loadingStore((state) => state);
-  const { user } = useUser();
-  const { editAudioFiles } = audioFilesStore((state) => state);
   const closeDialogRef = useRef<HTMLButtonElement | null>(null);
-  const getAudios = async () => {
-    try {
-      editLoading(true);
-      const res = await axios.get(
-        `${APP_API_URL}/api/media?userId=${user?.id}`
-      );
-      editAudioFiles(res.data);
-    } catch (error) {
-      handleError(error);
-    } finally {
-      editLoading(false);
-    }
-  };
+  const { getAudios }: any = useGlobalContext();
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
       // console.log(values);
@@ -77,12 +62,16 @@ export default function RenameAudio({
         await axios.put(`${APP_API_URL}/api/media?id=${_id}`, {
           customName: values.audioName,
         });
-        toast({ description: "audio name was updated" });
+        toast({ description: "audio name was updated", duration: 3000 });
         await getAudios();
       }
     } catch (error) {
       handleError(error);
-      toast({ variant: "destructive", description: "something went wrong" });
+      toast({
+        variant: "destructive",
+        description: "something went wrong",
+        duration: 3000,
+      });
     } finally {
       editLoading(false);
       closeDialogRef.current?.click();

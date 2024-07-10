@@ -11,17 +11,27 @@ export default function HomePage()
 ## other components
 
 ```js
-function HomePageRenderItem({ i, mediaSrc, mediaName });
+function DynamicHomePageRenderItem({ i, mediaSrc, mediaName });
+function HeadPanel(){}
+function SoundControl(){}
 ```
 
 ### States
 
 ```js
-import selectedAudioStore from "@/zustand/selectedAudio.store";
 import audioFilesStore from "@/zustand/audioFiles.store";
-import playStore from "@/zustand/play.store";
+import searchAudioStore from "@/zustand/searchAudio.store";
+```
+
+### Context
+
+```js
+const { getAudios }: any = useGlobalContext();
+const { handleVolume, audioVolume }: any = useAudio();
 ```
 
 ### Handlers
 
-- getAudios : async() : for getting all the audio files api
+| handler   | type  | description                         |
+| --------- | ----- | ----------------------------------- |
+| getAudios | async | for getting all the audio files api |

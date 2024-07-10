@@ -5,9 +5,9 @@ import { useEffect } from "react";
 import { useAuth, useUser } from "@clerk/nextjs";
 import Link from "next/link";
 //
-import UploadPage from "../UploadPage/UploadPage";
 import MyUserProfile from "../MyUserProfile/MyUserProfile";
 import dynamic from "next/dynamic";
+
 const DynamicUploadPage = dynamic(() => import("../UploadPage/UploadPage"));
 
 export default function Navbar() {

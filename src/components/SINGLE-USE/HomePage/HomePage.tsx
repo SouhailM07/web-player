@@ -1,19 +1,16 @@
 "use client";
 import dynamic from "next/dynamic";
-import { APP_API_URL } from "@/lib/APP_API_URL";
-import handleError from "@/lib/handleError";
 import { useUser } from "@clerk/nextjs";
-import axios from "axios";
 import { useEffect } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSearch, faVolumeLow } from "@fortawesome/free-solid-svg-icons";
+import { Slider } from "@/components/ui/slider";
+// ! context api
+import { useGlobalContext } from "@/context/GlobalContext";
+import { useAudio } from "@/context/AudioContext";
 // ! zustand states
 import audioFilesStore from "@/zustand/audioFiles.store";
 import searchAudioStore from "@/zustand/searchAudio.store";
-import loadingStore from "@/zustand/loading.store";
-import audioInstanceStore from "@/zustand/audioInstance.store";
-import { Slider } from "@/components/ui/slider";
-import audioVolumeStore from "@/zustand/audioVolume.store";
 
 //
 const DynamicHomePageRenderItem = dynamic(
@@ -22,28 +19,13 @@ const DynamicHomePageRenderItem = dynamic(
 
 export default function HomePage() {
   const { user, isSignedIn, isLoaded } = useUser();
-  const { audioFiles, editAudioFiles } = audioFilesStore((state) => state);
-  const { editLoading } = loadingStore((state) => state);
+  const { audioFiles } = audioFilesStore((state) => state);
   const { searchAudio } = searchAudioStore((state) => state);
-  const getAudios = async () => {
-    try {
-      if (isSignedIn) {
-        editLoading(true);
-        const res = await axios.get(
-          `${APP_API_URL}/api/media?userId=${user?.id}`
-        );
-        editAudioFiles(res.data);
-      }
-    } catch (error) {
-      handleError(error);
-    } finally {
-      editLoading(false);
-    }
-  };
+  const { getAudios }: any = useGlobalContext();
 
   useEffect(() => {
-    isSignedIn && isLoaded ? getAudios() : editAudioFiles([]);
-  }, [isSignedIn]);
+    if (user) getAudios();
+  }, [user]);
   let arrOfFiles = audioFiles.filter((e) =>
     e.customName.toLowerCase().includes(searchAudio.toLowerCase())
   );
@@ -67,6 +49,7 @@ export default function HomePage() {
 }
 
 const HeadPanel = () => {
+  const { isSignedIn, isLoaded } = useUser();
   const { audioFiles, editAudioFiles } = audioFilesStore((state) => state);
   const { searchAudio, editSearchAudio } = searchAudioStore((state) => state);
   return (
@@ -91,26 +74,15 @@ const HeadPanel = () => {
         />
       </article>
       <article className="max-md:hidden">
-        Files : <span>{audioFiles.length}</span>
+        Files : <span>{!isSignedIn ? 0 : audioFiles.length}</span>
       </article>
     </section>
   );
 };
 
 const SoundControl = () => {
-  const { audioVolume, editAudioVolume } = audioVolumeStore((state) => state);
+  const { handleVolume, audioVolume }: any = useAudio();
 
-  const { audioInstance } = audioInstanceStore((state) => state);
-  let handleVolume = (e) => {
-    // @ts-ignore
-    audioInstance.volume = e[0] / 100;
-    editAudioVolume(e[0] / 100);
-  };
-  useEffect(() => {
-    if (audioInstance) {
-      audioInstance.volume = audioVolume;
-    }
-  }, [audioInstance]);
   return (
     <article className="flexBetween gap-x-2 w-[6rem] ">
       <FontAwesomeIcon icon={faVolumeLow} className="h-[1rem] aspect-square" />

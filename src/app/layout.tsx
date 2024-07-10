@@ -7,6 +7,8 @@ import { ClerkProvider } from "@clerk/nextjs";
 import DontRenderWhen from "@/components/REUSABLE/DontRenderWhen/DontRenderWhen";
 import PlayPanel from "@/components/SINGLE-USE/PlayPanel/PlayPanel";
 import Loading from "@/components/REUSABLE/Loading/Loading";
+import GlobalContextProvider from "@/context/GlobalContext";
+import { AudioProvider } from "@/context/AudioContext";
 
 const audiowide = Audiowide({ subsets: ["latin"], weight: ["400"] });
 export const metadata = {
@@ -20,15 +22,19 @@ export default function RootLayout({ children }: { children: ReactNode }) {
     >
       <html lang="en">
         <body className={audiowide.className}>
-          <Loading />
-          <DontRenderWhen route={["/login", "/upload", "/profile"]}>
-            <Navbar />
-          </DontRenderWhen>
-          {children}
-          <DontRenderWhen route={["/login", "/upload", "/profile"]}>
-            <PlayPanel />
-          </DontRenderWhen>
-          <Toaster />
+          <GlobalContextProvider>
+            <AudioProvider>
+              <Loading />
+              <DontRenderWhen route={["/login", "/upload", "/profile"]}>
+                <Navbar />
+              </DontRenderWhen>
+              {children}
+              <DontRenderWhen route={["/login", "/upload", "/profile"]}>
+                <PlayPanel />
+              </DontRenderWhen>
+              <Toaster />
+            </AudioProvider>
+          </GlobalContextProvider>
         </body>
       </html>
     </ClerkProvider>

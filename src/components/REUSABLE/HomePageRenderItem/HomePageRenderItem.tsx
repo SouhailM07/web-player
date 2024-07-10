@@ -25,10 +25,10 @@ import { APP_API_URL } from "@/lib/APP_API_URL";
 import axios from "axios";
 import loadingStore from "@/zustand/loading.store";
 import { useToast } from "@/components/ui/use-toast";
-import { useUser } from "@clerk/nextjs";
 import handleError from "@/lib/handleError";
 import audioInstanceStore from "@/zustand/audioInstance.store";
 import { deleteAudio } from "@/lib/fb_hanlders";
+import { useGlobalContext } from "@/context/GlobalContext";
 
 // ! dynamic components
 const DynamicRenameAudio = dynamic(
@@ -48,18 +48,18 @@ export default function HomePageRenderItem({ customName, i, mediaSrc, _id }) {
   const { selectedAudio, editSelectedAudio } = selectedAudioStore(
     (state) => state
   );
-  const options: OptionProps[] = [
-    {
-      icon: faHeart,
-      label: "Add to favorite",
-      color: "text-black",
-    },
-    {
-      icon: faDownload,
-      label: "Install",
-      color: "text-cyan-300",
-    },
-  ];
+  // const options: OptionProps[] = [
+  //   {
+  //     icon: faHeart,
+  //     label: "Add to favorite",
+  //     color: "text-black",
+  //   },
+  //   {
+  //     icon: faDownload,
+  //     label: "Install",
+  //     color: "text-cyan-300",
+  //   },
+  // ];
   return (
     <li
       role="listitem"
@@ -84,9 +84,9 @@ export default function HomePageRenderItem({ customName, i, mediaSrc, _id }) {
           }
         >
           <DynamicRenameAudio _id={_id} name={customName} />
-          {options.map((e, i) => (
+          {/* {options.map((e, i) => (
             <OptionBtn key={i} {...e} />
-          ))}
+          ))} */}
           <DeleteBtn itemName={customName} itemId={_id} itemSrc={mediaSrc} />
         </DynamicMyPopover>
         <FontAwesomeIcon aria-label="drag btn" icon={faBars} />
@@ -96,33 +96,24 @@ export default function HomePageRenderItem({ customName, i, mediaSrc, _id }) {
 }
 
 const DeleteBtn = ({ itemName, itemId, itemSrc }) => {
-  const { audioFiles, editAudioFiles } = audioFilesStore((state) => state);
   const { selectedAudio, editSelectedAudio } = selectedAudioStore(
     (state) => state
   );
   const { audioInstance, editAudioInstance } = audioInstanceStore(
     (state) => state
   );
-  const { play, editPlay } = playStore((state) => state);
+  const { editPlay } = playStore((state) => state);
 
-  const { user } = useUser();
   const { toast } = useToast();
   const { editLoading } = loadingStore((state) => state);
-  const getAudios = async () => {
-    try {
-      const res = await axios.get(
-        `${APP_API_URL}/api/media?userId=${user?.id}`
-      );
+  const { getAudios }: any = useGlobalContext();
 
-      editAudioFiles(res.data);
-    } catch (error) {
-      handleError(error);
-    }
-  };
+  // ! handlers [1]
   const handleDelete = async () => {
     try {
       editLoading(true);
       editPlay(false);
+      // check if the current audio playing is the one to delete
       if (audioInstance && itemSrc == selectedAudio.src) {
         audioInstance.currentTime = 0.0;
         audioInstance.pause();
@@ -131,20 +122,22 @@ const DeleteBtn = ({ itemName, itemId, itemSrc }) => {
       await deleteAudio(itemName);
       let res = await axios.delete(`${APP_API_URL}/api/media?id=${itemId}`);
       await getAudios();
-      // find a solution delete an audio if it was playing
       toast({
         description: "The Audio was deleted successfully",
+        duration: 3000,
       });
     } catch (error) {
       handleError(error);
       toast({
         variant: "destructive",
         description: "Something went wrong",
+        duration: 3000,
       });
     } finally {
       editLoading(false);
     }
   };
+
   return (
     <DynamicMyDialog
       trigger={<OptionBtn color="text-red-500" label="Delete" icon={faTrash} />}
