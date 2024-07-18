@@ -89,7 +89,7 @@ export default function HomePageRenderItem({ customName, i, mediaSrc, _id }) {
           ))} */}
           <DeleteBtn itemName={customName} itemId={_id} itemSrc={mediaSrc} />
         </DynamicMyPopover>
-        <FontAwesomeIcon aria-label="drag btn" icon={faBars} />
+        {/* <FontAwesomeIcon aria-label="drag btn" icon={faBars} /> */}
       </div>
     </li>
   );
