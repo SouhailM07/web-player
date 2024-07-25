@@ -12,6 +12,7 @@ Project Description
 
 ### In Progress
 
+- [ ] adding pwa  
 - [ ] clean the codes  
 
 ### Done ✓

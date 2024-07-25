@@ -4,10 +4,8 @@ import audioFilesStore from "@/zustand/audioFiles.store";
 import playStore from "@/zustand/play.store";
 import selectedAudioStore from "@/zustand/selectedAudio.store";
 import {
-  faBars,
-  faDownload,
   faEllipsis,
-  faHeart,
+  faFireExtinguisher,
   faTrash,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -143,7 +141,7 @@ const DeleteBtn = ({ itemName, itemId, itemSrc }) => {
       trigger={<OptionBtn color="text-red-500" label="Delete" icon={faTrash} />}
     >
       <DialogHeader>
-        <DialogTitle>Upload Audio file</DialogTitle>
+        <DialogTitle>Delete Audio file</DialogTitle>
         <DialogContent>
           Are you sure you want to delete
           <span className="text-red-500">
@@ -155,6 +153,7 @@ const DeleteBtn = ({ itemName, itemId, itemSrc }) => {
                 <MyButton
                   btnType="divButton"
                   label="Cancel"
+                  icon={faFireExtinguisher}
                   borderBottomColor="rgb(8 145 178)"
                   color="bg-cyan-500 text-white"
                 />
